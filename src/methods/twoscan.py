@@ -55,6 +55,9 @@ def subject_model(data, subj, visit, verbose=0):
     rois = data['rois'][subj][visit]
     pars = data['pars'][subj][visit]
 
+    time_1 = rois['time_1'] - rois['time_1'][0]
+    time_2 = rois['time_2'] - rois['time_1'][0]
+
     # Define default model
     model = dc.AortaLiver2scan(
 
@@ -67,11 +70,11 @@ def subject_model(data, subj, visit, verbose=0):
 
         # Acquisition parameters
         field_strength=3.0,
-        t0=pars['t0'],
         TR=pars['TR'], 
         FA=pars['FA_1'],
         FA2=pars['FA_2'],
-        TS=rois['time_1'][1]-rois['time_1'][0],
+        TS = time_1[1],
+        tmax = max(time_2),
 
         # Signal parameters
         R10a=1/pars['T1_aorta_1'],
@@ -85,7 +88,8 @@ def subject_model(data, subj, visit, verbose=0):
 
     # Personalise model
     xdata, ydata = _data(rois)
-    model.train(xdata, ydata, xtol=1e-3, verbose=verbose)
+    n0 = int(pars['t0']/time_1[1])
+    model.train(xdata, ydata, n0=n0, xtol=1e-3, verbose=verbose)
     return model
 
 
@@ -119,16 +123,16 @@ def save_plots(model, data, subj, visit, path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    ya = [dc.signal_ss(model.S0a, R1a[0], model.TR, model.FA),
-          dc.signal_ss(model.S0a, R1a[1], model.TR, model.FA),
-          dc.signal_ss(model.S02a, R1a[2], model.TR, model.FA)]
-    yl = [dc.signal_ss(model.S0l, R1l[0], model.TR, model.FA),
-          dc.signal_ss(model.S0l, R1l[1], model.TR, model.FA),
-          dc.signal_ss(model.S02l, R1l[2], model.TR, model.FA)]
+    ya = [dc.signal_ss(model.pars['S0a'], R1a[0], model.pars['TR'], model.pars['FA']),
+          dc.signal_ss(model.pars['S0a'], R1a[1], model.pars['TR'], model.pars['FA']),
+          dc.signal_ss(model.pars['S02a'], R1a[2], model.pars['TR'], model.pars['FA'])]
+    yl = [dc.signal_ss(model.pars['S0l'], R1l[0], model.pars['TR'], model.pars['FA']),
+          dc.signal_ss(model.pars['S0l'], R1l[1], model.pars['TR'], model.pars['FA']),
+          dc.signal_ss(model.pars['S02l'], R1l[2], model.pars['TR'], model.pars['FA'])]
     test = ((t,ya),(t,yl))
     model.plot(xdata, ydata, fname=file + '.png', ref=test, show=False)
 
-    BAT = model.BAT
+    BAT = model.pars['BAT']
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+1200], 
                fname=file + '_scan1_win1.png', ref=test, show=False)
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+600], 
@@ -136,7 +140,7 @@ def save_plots(model, data, subj, visit, path):
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+160], 
                fname=file + '_scan1_win3.png', ref=test, show=False)
     
-    BAT = model.BAT2
+    BAT = model.pars['BAT2']
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+1200], 
                fname=file + '_scan2_win1.png', ref=test, show=False)
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+600], 
@@ -155,7 +159,7 @@ def save_results(model, data, subj, visit, path):
     tb, Sb, tl, Sl = xdata[0], ydata[0], xdata[2], ydata[2]
 
     time = (xdata[0], xdata[1])
-    model.dose2 = 0
+    model.pars['dose2'] = 0
 
     params = tools.export_params(model, tb, Sb, tl, Sl, pars)
     params['T1_3']=['Liver T1-MOLLI at scan 2', pars['T1_liver_3'], 'sec', 0]
@@ -169,8 +173,8 @@ def save_results(model, data, subj, visit, path):
                 'hrs',0]
     params['t3']=["End time second acquisition", (t0+time[1][-1])/(60*60), 
                 'hrs',0]
-    params['dt1']=["Time step first acquisition", model.TS, 'sec',0]
-    params['dt2']=["Time step second acquisition", model.TS, 'sec',0]
+    params['dt1']=["Time step first acquisition", model.pars['TS'], 'sec',0]
+    params['dt2']=["Time step second acquisition", model.pars['TS'], 'sec',0]
 
     params = tools.to_tristan_units(params)
     dmrpath = os.path.join(path, 'Results')

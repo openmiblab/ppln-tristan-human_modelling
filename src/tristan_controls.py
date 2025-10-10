@@ -17,9 +17,9 @@ def main():
         datapath,
     )
 
-    # One scan
-    path = os.path.join(results, 'results (one scan)')
-    onescan.compute(data, path)
+    # # One scan
+    # path = os.path.join(results, 'results (one scan)')
+    # onescan.compute(data, path)
 
     # Two scan
     path = os.path.join(results, 'results (two scans)')

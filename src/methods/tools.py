@@ -67,23 +67,23 @@ LABEL = {
 def export_params(model, tb, Sb, tl, Sl, params):
 
      # Compute AUC over 3hrs
-    model.tmax = model.BAT+180*60
+    model.pars['tmax'] = model.pars['BAT']+180*60
     t, cb, Cl = model.conc()
     t, R1b, R1l = model.relax()
     AUC_Cb = np.trapezoid(cb, model.t) 
     AUC_Cl = np.trapezoid(Cl, t)
 
     # Compute relative enhancement at 20mins
-    tRE = model.BAT + 20*60
+    tRE = model.pars['BAT'] + 20*60
     RE_R1b = (R1b[t<tRE][-1] - R1b[0])/R1b[0]
     RE_R1l = (R1l[t<tRE][-1] - R1l[0])/R1l[0]
-    S0b = np.mean(Sb[tb<model.BAT-30])
-    S0l = np.mean(Sl[tl<model.BAT-30])
+    S0b = np.mean(Sb[tb<model.pars['BAT']-30])
+    S0l = np.mean(Sl[tl<model.pars['BAT']-30])
     RE_Sb = (Sb[tb<tRE][-1] - S0b)/S0b
     RE_Sl = (Sl[tl<tRE][-1] - S0l)/S0l
 
     # Compute AUC over 35min
-    model.tmax = model.BAT+35*60
+    model.pars['tmax'] = model.pars['BAT']+35*60
     t, cb, Cl = model.conc()
     t, R1b, R1l = model.relax()
     AUC35_Cb = np.trapezoid(cb, model.t) 
@@ -121,9 +121,10 @@ def to_dmr(path, subj, study, pars):
         'columns': ['group', 'label'],
     }
     for key, val in pars.items():
-        dmr['data'][key] = [val[0], val[2], 'float']
-        dmr['pars'][subj, study, key] = val[1]
-        dmr['sdev'][subj, study, key] = val[3]
+        if key in LABEL:
+            dmr['data'][key] = [val[0], val[2], 'float']
+            dmr['pars'][subj, study, key] = val[1]
+            dmr['sdev'][subj, study, key] = val[3]
 
     # Append group and label to the data dictionary
     for p in dmr['data']:

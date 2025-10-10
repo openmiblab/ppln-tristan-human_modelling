@@ -79,6 +79,7 @@ def subject_model(data, subj, visit, verbose=0, tacq=None):
 
     rois = data['rois'][subj][visit]
     pars = data['pars'][subj][visit]
+    tacq = rois['time_1'] - rois['time_1'][0]
 
     # Fit model to data
     model = dc.AortaLiver(
@@ -91,10 +92,10 @@ def subject_model(data, subj, visit, verbose=0, tacq=None):
 
         # Acquisition parameters
         field_strength=3.0,
-        t0=pars['t0'],
         TR=pars['TR'], 
         FA=pars['FA_1'],
-        TS=rois['time_1'][1]-rois['time_1'][0],
+        TS = tacq[1],
+        tmax = max(tacq),
 
         # Signal parameters
         R10a=1/pars['T1_aorta_1'],
@@ -114,7 +115,8 @@ def subject_model(data, subj, visit, verbose=0, tacq=None):
         ydata = (ydata[0][idx0], ydata[1][idx1])
 
     # TRain
-    model.train(xdata, ydata, xtol=1e-3, verbose=verbose)
+    n0 = int(pars['t0']/tacq[1])
+    model.train(xdata, ydata, n0=n0, xtol=1e-3, verbose=verbose)
     return model
 
 
@@ -146,13 +148,13 @@ def save_plots(model, data, subj, visit, path, tacq=None):
     if not os.path.exists(path):
         os.makedirs(path)
     
-    ya = [dc.signal_ss(model.S0a, R1a[0], model.TR, model.FA),
-          dc.signal_ss(model.S0a, R1a[1], model.TR, model.FA)]
-    yl = [dc.signal_ss(model.S0l, R1l[0], model.TR, model.FA),
-          dc.signal_ss(model.S0l, R1l[1], model.TR, model.FA)]
+    ya = [dc.signal_ss(model.pars['S0a'], R1a[0], model.pars['TR'], model.pars['FA']),
+          dc.signal_ss(model.pars['S0a'], R1a[1], model.pars['TR'], model.pars['FA'])]
+    yl = [dc.signal_ss(model.pars['S0l'], R1l[0], model.pars['TR'], model.pars['FA']),
+          dc.signal_ss(model.pars['S0l'], R1l[1], model.pars['TR'], model.pars['FA'])]
     test=((t,ya),(t,yl))
 
-    BAT = model.BAT
+    BAT = model.pars['BAT']
     model.plot(xdata, ydata, 
                fname=file + '.png', ref=test, show=False)
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+1200], 
