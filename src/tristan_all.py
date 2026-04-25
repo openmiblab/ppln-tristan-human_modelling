@@ -8,8 +8,8 @@ import tristan_rifampicin_clinical
 import tristan_metformin
 import tristan_ciclosporin
 
-tristan_controls.main()
-tristan_rifampicin_clinical.main()
-tristan_rifampicin.main()
 tristan_metformin.main()
 tristan_ciclosporin.main()
+tristan_rifampicin.main()
+tristan_rifampicin_clinical.main()
+tristan_controls.main()

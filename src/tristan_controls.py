@@ -25,11 +25,9 @@ def main():
     path = os.path.join(results, 'results (two scans)')
     twoscan.compute(data, path)
 
-    # Variable time
-    path = os.path.join(results, 'results (one scan - variable tacq)')
-    onescan.compute_vart(data, path)
-
-    shutil.rmtree(datapath)
+    # # Variable time
+    # path = os.path.join(results, 'results (one scan - variable tacq)')
+    # onescan.compute_vart(data, path)
 
 
 if __name__ == '__main__':

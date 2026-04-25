@@ -1,0 +1,4 @@
+Biomarker,Visit,Start,End,Change,p-value,range
+,,mL/min/100mL,mL/min/100mL,%,,%
+khe,Control,11.5 +/- 2.5,14.7 +/- 6.7,25.4 +/- 38.2,0.2337,140.8
+khe,Treatment,0.8 +/- 0.3,1.0 +/- 0.2,33.1 +/- 26.3,0.0427,117.9

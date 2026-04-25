@@ -3,8 +3,9 @@ import time
 
 import dcmri as dc
 import pydmr
+import numpy as np
 
-from methods import tools
+from methods import tools, models
 
 
 def compute(datafile, resultspath):
@@ -20,7 +21,7 @@ def compute(datafile, resultspath):
         for visit in data['rois'][subj].keys():
 
             # Train model
-            model = subject_model(data, subj, visit, verbose=2)
+            model = models.one_scan(data, subj, visit, verbose=2)
 
             # Save results
             save_plots(model, data, subj, visit, resultspath)
@@ -49,7 +50,7 @@ def compute_vart(datafile, resultspath,
             for tacq in acq_times:
                 
                 # Train model
-                model = subject_model(data, subj, visit, verbose=2, tacq=tacq)
+                model = models.one_scan(data, subj, visit, verbose=2, tacq=tacq)
 
                 # Save results
                 save_plots(model, data, subj, visit, resultspath, tacq=tacq)
@@ -62,62 +63,7 @@ def compute_vart(datafile, resultspath,
     print('Calculation time (mins): ', (time.time()-start)/60)
 
 
-def _data(rois):
 
-    xdata = (
-        rois['time_1'][rois['aorta_1_accept']] - rois['time_1'][0], 
-        rois['time_1'][rois['liver_1_accept']] - rois['time_1'][0],
-    )
-    ydata = (
-        rois['aorta_1'][rois['aorta_1_accept']], 
-        rois['liver_1'][rois['liver_1_accept']],
-    )
-    return xdata, ydata
-
-
-def subject_model(data, subj, visit, verbose=0, tacq=None):
-
-    rois = data['rois'][subj][visit]
-    pars = data['pars'][subj][visit]
-    tacq = rois['time_1'] - rois['time_1'][0]
-
-    # Fit model to data
-    model = dc.AortaLiver(
-
-        # Injection parameters
-        weight=pars['weight'],
-        agent='gadoxetate',
-        dose=pars['dose_1'],
-        rate=1,
-
-        # Acquisition parameters
-        field_strength=3.0,
-        TR=pars['TR'], 
-        FA=pars['FA_1'],
-        TS = tacq[1],
-        tmax = max(tacq),
-
-        # Signal parameters
-        R10a=1/pars['T1_aorta_1'],
-        R10l=1/pars['T1_liver_1'],
-
-        # Tissue parameters
-        vol=pars['liver_volume'],
-    )
-
-    # Personalise model
-
-    # Truncate data if requested
-    xdata, ydata = _data(rois)
-    if tacq is not None:
-        idx0, idx1 = xdata[0]<tacq*60, xdata[1]<tacq*60
-        xdata = (xdata[0][idx0], xdata[1][idx1])
-        ydata = (ydata[0][idx0], ydata[1][idx1])
-
-    # TRain
-    n0 = int(pars['t0']/tacq[1])
-    model.train(xdata, ydata, n0=n0, xtol=1e-3, verbose=verbose)
-    return model
 
 
 def save_plots(model, data, subj, visit, path, tacq=None):
@@ -127,37 +73,39 @@ def save_plots(model, data, subj, visit, path, tacq=None):
 
     study = visit if tacq is None else visit + '_' + str(tacq).zfill(2)
     name = subj + '_' + study
-    xdata, ydata = _data(rois)
+    xdata, ydata = models.one_scan_data(rois)
     t0 = rois['time_1'][0]
     path = os.path.join(path, 'Plots')
     file = os.path.join(path, name)
     
     t = [
         0, 
-        pars['T1_time_2']-t0,
+        #pars['T1_time_2']-t0,
     ]
     R1a = [
         1/pars['T1_aorta_1'], 
-        1/pars['T1_aorta_2'],
+        #1/pars['T1_aorta_2'],
     ]
     R1l = [
         1/pars['T1_liver_1'], 
-        1/pars['T1_liver_2'],
+        #1/pars['T1_liver_2'],
     ]
 
     if not os.path.exists(path):
         os.makedirs(path)
     
-    ya = [dc.signal_ss(model.pars['S0a'], R1a[0], model.pars['TR'], model.pars['FA']),
-          dc.signal_ss(model.pars['S0a'], R1a[1], model.pars['TR'], model.pars['FA'])]
-    yl = [dc.signal_ss(model.pars['S0l'], R1l[0], model.pars['TR'], model.pars['FA']),
-          dc.signal_ss(model.pars['S0l'], R1l[1], model.pars['TR'], model.pars['FA'])]
+    ya = [dc.signal_ss(model.params('S0a'), R1a[0], model.params('TR'), model.params('FA')),
+          #dc.signal_ss(model.pars['S0a'], R1a[1], model.pars['TR'], model.pars['FA']),
+          ]
+    yl = [dc.signal_ss(model.params('S0l'), R1l[0], model.params('TR'), model.params('FA')),
+          #dc.signal_ss(model.pars['S0l'], R1l[1], model.pars['TR'], model.pars['FA']),
+          ]
     test=((t,ya),(t,yl))
 
-    BAT = model.pars['BAT']
+    BAT = model.params('BAT')
     model.plot(xdata, ydata, 
                fname=file + '.png', ref=test, show=False)
-    model.plot(xdata, ydata, xlim=[BAT-20, BAT+1200], 
+    model.plot(xdata, ydata, xlim=[xdata[0][0], xdata[0][-1]], 
                fname=file + '_win1.png', ref=test, show=False)
     model.plot(xdata, ydata, xlim=[BAT-20, BAT+600], 
                fname=file + '_win2.png', ref=test, show=False)
@@ -167,15 +115,21 @@ def save_plots(model, data, subj, visit, path, tacq=None):
 
 def save_results(model, data, subj, visit, path, tacq=None):
 
+    study = visit if tacq is None else visit + '_' + str(tacq).zfill(2)
+
+    # Save state
+    state_path = os.path.join(path, 'State')
+    os.makedirs(state_path, exist_ok=True)
+    model.save(os.path.join(state_path, f"{subj}_{study}"))
+
     rois = data['rois'][subj][visit]
     pars = data['pars'][subj][visit]
-    xdata, ydata = _data(rois)
 
+    xdata, ydata = models.one_scan_data(rois)
     tb, Sb, tl, Sl = xdata[0], ydata[0], xdata[1], ydata[1]
+
     params = tools.export_params(model, tb, Sb, tl, Sl, pars)
-
     params = tools.to_tristan_units(params)
+    
     dmrpath = os.path.join(path, 'Results')
-
-    study = visit if tacq is None else visit + '_' + str(tacq).zfill(2)
     return tools.to_dmr(dmrpath, subj, study, params)

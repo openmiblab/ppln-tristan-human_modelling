@@ -1,0 +1,4 @@
+Biomarker,Control,Treatment,Effect size,Effect size,p-value,range
+,mL/min/100mL,mL/min/100mL,mL/min/100mL,%,,%
+khe,21.2 +/- 3.7,17.1 +/- 2.3,-4.2 +/- 2.6,-18.2 +/- 9.7,0.025,32.0
+kbh,1.9 +/- 0.6,1.6 +/- 0.3,-0.3 +/- 0.5,-7.0 +/- 24.1,0.2859,79.5

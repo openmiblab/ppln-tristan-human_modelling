@@ -1,0 +1,10 @@
+biomarker,units,value (95%CI)
+Cardiac output,L/min,8.0 +/- 2.0
+Heart-lung mean transit time,sec,16.0 +/- 5.1
+Heart-lung dispersion,%,53.0 +/- 11.0
+Organs blood mean transit time,sec,29.0 +/- 7.0
+Organs extraction fraction,%,16.0 +/- 3.0
+Organs extravascular mean transit time,min,6.3 +/- 1.5
+Gut mean transit time,sec,27.0 +/- 6.0
+Gut dispersion,%,73.0 +/- 9.0
+Liver extracellular volume fraction,%,26.0 +/- 3.0

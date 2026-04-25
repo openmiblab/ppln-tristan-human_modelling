@@ -1,0 +1,19 @@
+name: tristan
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core packages installed via Conda
+  - python=3.10
+  - pandas=2.3.3
+  - numpy
+  - matplotlib
+  - pingouin=0.5.5
+  - ipykernel
+  - jupyter
+  - texlive-core
+  - pip
+  
+  # Pip-only packages
+  - pip:
+    - -r pc_requirements.txt

@@ -19,7 +19,7 @@ def main():
     master.run(
         data, 
         results, 
-        ref=True,
+        ref=False, # set to True once new reference data are made
         compute=True,
     )
     report.all_results(
@@ -36,7 +36,7 @@ def main():
         subtitle = f'{drug} (key results)',
         subject = 'D2.13 - Internal report',
     )
-    shutil.rmtree(datapath)
+
 
 
 if __name__ == '__main__':

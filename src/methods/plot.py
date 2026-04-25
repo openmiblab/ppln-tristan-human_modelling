@@ -80,6 +80,10 @@ def _line_plot_ref(ax1, ax2, visits):
                  color='lightgrey')
         
 
+
+
+        
+
 def _line_plots(src, ax1, ax2, ylim=[50,5], ref=False):
 
     output = pd.read_csv(os.path.join(src, 'Analysis', 'parameters_rep.csv'))
@@ -124,16 +128,23 @@ def _line_plots(src, ax1, ax2, ylim=[50,5], ref=False):
                  markersize=markersize, color=color(si))
         ax2.plot(x, kbh, '-', label=s, marker=mark[int(i+1)], 
                  markersize=markersize, color=color(si))
+        
+
 
 
 def _effect_box_plots(src, ax):
 
-    pars = ['khe', 'kbh']
     df = pd.read_csv(os.path.join(src, 'Analysis', 'effect_size.csv'))
     all_data = []
     for par in ['khe', 'kbh']:
         data = df[df.parameter==par].value.values.tolist()
         all_data.append(data)
+    _plot_effect_box_plots(ax, all_data)
+
+
+def _plot_effect_box_plots(ax, all_data):
+
+    pars = ['khe', 'kbh']
 
     linewidth = 1.0
     fontsize=10
@@ -182,6 +193,7 @@ def effect_plot(src, ylim=[50,5], ref=False):
         os.makedirs(path)
     plt.savefig(fname=os.path.join(path, '_effect_plot.png'))
     plt.close()
+
 
 
 def _compare_to_ref_box_plot(ax, all_data, ylabel=None, title=None, ylim=None):
@@ -484,6 +496,7 @@ def create_bar_chart(resultsfolder, ylim={}):
     output_file = os.path.join(resultsfolder, 'all_results')
     dmr = pydmr.read(output_file, format='table')
     output = pd.DataFrame(dmr['pars'], columns=['subject', 'visit', 'parameter', 'value'])
+    output_err = pd.DataFrame(dmr['sdev'], columns=['subject', 'visit', 'parameter', 'value'])
 
     output['group'] = calc.lookup(resultsfolder, output.parameter.values, 'group')
     output['description'] = calc.lookup(resultsfolder, output.parameter.values, 'description')
@@ -495,6 +508,7 @@ def create_bar_chart(resultsfolder, ylim={}):
     structures = output['group'].unique()
     for struct in structures:
         df_struct = output[output.group==struct]
+        df_struct_err = output_err[output.group==struct]
         for par in df_struct['parameter'].unique():
             if par == 'Kbh':
                 # For some reason the file with kbh is not written
@@ -503,17 +517,30 @@ def create_bar_chart(resultsfolder, ylim={}):
                 # Kbh is not of interest.
                 continue
             df = df_struct[df_struct.parameter==par]
+            df_err = df_struct_err[df_struct_err.parameter==par]
             bar_chart = {}
+            bar_chart_err = {}
             for visit in visits:
                 df_visit = df[df.visit==visit]
+                df_visit_err = df_err[df_err.visit==visit]
                 bar_chart[visit] = []
+                bar_chart_err[visit] = []
                 for s in subjects:
+
                     df_visit_subj = df_visit[df_visit.subject==s]
                     if df_visit_subj.empty:
                         val = np.nan
                     else:
                         val = df_visit_subj['value'].values[0]
                     bar_chart[visit].append(val)
+                    
+                    df_visit_subj_err = df_visit_err[df_visit_err.subject==s]
+                    if df_visit_subj_err.empty:
+                        sdev = np.nan
+                    else:
+                        sdev = df_visit_subj_err['value'].values[0]
+                    bar_chart_err[visit].append(sdev)
+
             x = np.arange(len(subjects))  # the label locations
             width = 0.25  # the width of the bars
             multiplier = 0
@@ -524,8 +551,16 @@ def create_bar_chart(resultsfolder, ylim={}):
                 offset = width * multiplier
                 if measurement != np.nan:
                     rects = ax.bar(
-                        x + offset, measurement, width, label=attribute, 
-                        color=colors[attribute])
+                        x + offset, 
+                        measurement, 
+                        width, 
+                        label=attribute, 
+                        color=colors[attribute],
+                        yerr=bar_chart_err[attribute],   # ← add error bars here
+                        capsize=5,                       # ← makes little caps on error bars
+                        ecolor='black',                  # ← error bar color
+                        error_kw={'elinewidth': 1.2},    # ← fine-tune look
+                    )
                     ax.bar_label(rects, padding=3)
                 multiplier += 1
 

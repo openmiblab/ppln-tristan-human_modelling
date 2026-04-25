@@ -34,10 +34,12 @@ The **build** folder contains the output produced by the scripts in **src**. It 
 
 ## 💻 Usage
 
-The pipeline can be run after installing the requirements:
+The pipeline can be run after creating a virtual environment and installing 
+the requirements. With conda this looks like this:
 
-```console
-pip install -r requirements.txt
+```batch
+conda env create -p ./venv -f environment.yml
+conda activate ./venv
 ```
 
 The main scripts in the **src** and all be run independently. They all reproduce results that were generated during the TRISTAN project, except for the script **analyze_newdrug.py** which is a template for future application of the pipeline to newly discovered drugds. The script **analyze_rifampicin.py** only generates the primary results, and the notebook with the same name **analyze_rifampicin.ipynb** is a narrative step-by-step guide to the calculation. 

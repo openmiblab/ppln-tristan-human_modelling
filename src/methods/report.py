@@ -56,18 +56,22 @@ def all_results(
 
     # Two-scan results
     folder = TWOSCAN
-    doc.chapter('Two-scan results')
-    section_summary(doc, os.path.join(resultspath, folder))
-    section_biomarkers(doc, os.path.join(resultspath, folder))
-    section_reference(doc, os.path.join(resultspath, folder))
-    section_case_notes(doc, os.path.join(resultspath, folder))
+    path = os.path.join(resultspath, folder)
+    if os.path.exists(path):
+        doc.chapter('Two-scan results')
+        section_summary(doc, path)
+        section_biomarkers(doc, path)
+        section_reference(doc, path)
+        section_case_notes(doc, path)
 
     # One-scan results
     folder = ONESCAN
-    doc.chapter('One-scan results')
-    section_summary(doc, os.path.join(resultspath, folder))
-    section_biomarkers(doc, os.path.join(resultspath, folder))
-    section_case_notes(doc, os.path.join(resultspath, folder))
+    path = os.path.join(resultspath, folder)
+    if os.path.exists(path):
+        doc.chapter('One-scan results')
+        section_summary(doc, path)
+        section_biomarkers(doc, path)
+        section_case_notes(doc, path)
 
     # Secondary results
     doc.chapter('Secondary results')
@@ -111,9 +115,12 @@ def primary_results(
 
 def section_diurnal(doc: miblab.Report, results):
 
-    doc.section('Diurnal variation')
-
     fig = os.path.join(results, 'Figures', '_diurnal_function.png')
+    if not os.path.exists(fig):
+        return
+
+    doc.section('Diurnal variation')
+    
     caption = (
         "Intra-day changes in hepatocellular uptake (k_he, top row) "
         "and biliary excretion (k_bh, bottom row) of gadoxetate at "

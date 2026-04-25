@@ -24,8 +24,6 @@ LABEL = {
     'CO': 'CO',
     'De': 'TTD(e)',
     'Dhl': 'TTD(hl)',
-    'dt1': 'dt(1)',
-    'dt2': 'dt(2)',
     'Eb': 'E',
     'Eo': 'E(o)',
     'Kbh': 'K(bh)',
@@ -36,12 +34,23 @@ LABEL = {
     'khe': 'k(he)',
     'khe_f': 'k(he,f)',
     'khe_i': 'k(he,i)',
+    'Tg': 'MTT(g)',
+    'Dg': 'D(g)',
+    'Th': 'MTT(h)',
+    'Th_f': 'MTT(h,f)',
+    'Th_i': 'MTT(h,i)',
+    'Thl': 'MTT(hl)',
+    'To': 'MTT(o)',
+    'Toe': 'MTT(o,e)',
+    've': 'v(e)',
     'RE_R1b': 'RER1(b)',
     'RE_R1l': 'RER1(l)',
     'RE_Sb': 'RES(b)',
     'RE_Sl': 'RES(l)',
     'S02a': 'S0(2,a)',
     'S02l': 'S0(2,l)',
+    'dt1': 'dt(1)',
+    'dt2': 'dt(2)',
     't0': 't0',
     't1': 't1',
     'T1_1': 'T1(1)',
@@ -52,41 +61,32 @@ LABEL = {
     't2_MOLLI': 't2_MOLLI',
     't3': 't3',
     't3_MOLLI': 't3_MOLLI',
-    'Te': 'MTT(e)',
-    'Th': 'MTT(h)',
-    'Th_f': 'MTT(h,f)',
-    'Th_i': 'MTT(h,i)',
-    'Thl': 'MTT(hl)',
-    'To': 'MTT(o)',
-    'Toe': 'MTT(o,e)',
-    've': 'v(e)',
-    'H': 'Hct',
 }
 
 
 def export_params(model, tb, Sb, tl, Sl, params):
 
      # Compute AUC over 3hrs
-    model.pars['tmax'] = model.pars['BAT']+180*60
+    model.set_params(tmax = model.params('BAT')+180*60)
     t, cb, Cl = model.conc()
     t, R1b, R1l = model.relax()
-    AUC_Cb = np.trapezoid(cb, model.t) 
+    AUC_Cb = np.trapezoid(cb, t) 
     AUC_Cl = np.trapezoid(Cl, t)
 
     # Compute relative enhancement at 20mins
-    tRE = model.pars['BAT'] + 20*60
+    tRE = model.params('BAT') + 20*60
     RE_R1b = (R1b[t<tRE][-1] - R1b[0])/R1b[0]
     RE_R1l = (R1l[t<tRE][-1] - R1l[0])/R1l[0]
-    S0b = np.mean(Sb[tb<model.pars['BAT']-30])
-    S0l = np.mean(Sl[tl<model.pars['BAT']-30])
+    S0b = np.mean(Sb[tb<model.params('BAT')-30])
+    S0l = np.mean(Sl[tl<model.params('BAT')-30])
     RE_Sb = (Sb[tb<tRE][-1] - S0b)/S0b
     RE_Sl = (Sl[tl<tRE][-1] - S0l)/S0l
 
     # Compute AUC over 35min
-    model.pars['tmax'] = model.pars['BAT']+35*60
+    model.set_params(tmax=model.params('BAT')+35*60)
     t, cb, Cl = model.conc()
     t, R1b, R1l = model.relax()
-    AUC35_Cb = np.trapezoid(cb, model.t) 
+    AUC35_Cb = np.trapezoid(cb, t) 
     AUC35_Cl = np.trapezoid(Cl, t) 
 
     pars = model.export_params()
@@ -103,9 +103,9 @@ def export_params(model, tb, Sb, tl, Sl, params):
     pars['T1_1']=['Liver T1-MOLLI at baseline', params['T1_liver_1'], 'sec', 0]
     pars['T1_2']=['Liver T1-MOLLI at 45min', params['T1_liver_2'], 'sec', 0]
 
-    # Timings needed for plotting etc
-    pars['t1_MOLLI']=['Time of T1-MOLLI at baseline', params['T1_time_1']/(60*60), 'hrs', 0]
-    pars['t2_MOLLI']=['Time of T1-MOLLI at 45min', params['T1_time_2']/(60*60), 'hrs', 0]
+    # # Timings needed for plotting etc
+    # pars['t1_MOLLI']=['Time of T1-MOLLI at baseline', params['T1_time_1']/(60*60), 'hrs', 0]
+    # pars['t2_MOLLI']=['Time of T1-MOLLI at 45min', params['T1_time_2']/(60*60), 'hrs', 0]
   
     return pars  
 
@@ -152,6 +152,8 @@ def to_tristan_units(pars):
             pars[p][1:] = [pars[p][1]*100, 'mL/100cm3', pars[p][3]*100]
         if pars[p][2] == 'mL/sec/cm3':
             pars[p][1:] = [pars[p][1]*6000, 'mL/min/100cm3', pars[p][3]*6000]
+        if pars[p][2] == '/sec':
+            pars[p][1:] = [pars[p][1]*60, '/min', pars[p][3]*60]
         if p in slow_time:
             pars[p][1:] = [pars[p][1]/60, 'min', pars[p][3]/60]
 

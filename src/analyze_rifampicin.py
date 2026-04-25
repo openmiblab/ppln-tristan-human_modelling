@@ -31,7 +31,7 @@ def main():
     )
 
     # Cleanup temporary folder
-    shutil.rmtree(datapath)
+    # shutil.rmtree(datapath)
 
 
 if __name__ == '__main__':

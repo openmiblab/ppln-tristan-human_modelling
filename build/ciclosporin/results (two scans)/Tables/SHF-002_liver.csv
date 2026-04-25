@@ -1,22 +1,21 @@
 Biomarker,Units,control,drug,change (%)
-AUC for Cl (0-35min),mM*sec,289.16,121.23,-58.07
-AUC for Cl (0-inf),mM*sec,727.59,782.3,7.52
-Biliary excretion rate,mL/min/100cm3,2.67,0.25,-90.57
-Biliary tissue excretion rate,mL/min/100cm3,3.71,0.31,-91.61
-Extracellular dispersion,%,90.97,88.81,-2.38
-Extracellular mean transit time,sec,21.34,48.36,126.6
-Final biliary excretion rate,mL/min/100cm3,2.8,1.92,-31.56
-Final hepatocellular uptake rate,mL/min/100cm3,35.96,13.77,-61.72
-Hematocrit,%,45.0,45.0,0.0
-Hepatocellular mean transit time,min,26.94,321.0,1091.66
-Hepatocellular tissue uptake rate,mL/min/100cm3,142.17,42.99,-69.76
-Hepatocellular uptake rate,mL/min/100cm3,40.04,8.27,-79.33
-Initial biliary excretion rate,mL/min/100cm3,2.54,0.13,-94.71
-Initial hepatocellular uptake rate,mL/min/100cm3,44.11,2.78,-93.69
+AUC for Cl (0-35min),mM*sec,300.5,139.44,-53.6
+AUC for Cl (0-inf),mM*sec,743.32,837.58,12.68
+Biliary excretion rate,mL/min/100cm3,2.34,0.2,-91.67
+Biliary tissue excretion rate,/min,0.03,0.0,-90.92
+Final biliary excretion rate,mL/min/100cm3,2.47,1.58,-36.09
+Final hepatocellular uptake rate,mL/min/100cm3,12.79,5.3,-58.6
+Gut dispersion,%,90.32,88.27,-2.27
+Gut mean transit time,sec,24.52,32.65,33.19
+Hepatocellular mean transit time,min,28.72,316.17,1000.95
+Hepatocellular tissue uptake rate,/min,0.78,0.15,-80.91
+Hepatocellular uptake rate,mL/min/100cm3,14.09,3.15,-77.65
+Initial biliary excretion rate,mL/min/100cm3,2.23,0.1,-95.34
+Initial hepatocellular uptake rate,mL/min/100cm3,15.4,1.01,-93.47
 Liver T1-MOLLI at 45min,sec,0.33,0.59,78.97
 Liver T1-MOLLI at baseline,sec,0.73,0.78,6.09
 Liver T1-MOLLI at scan 2,sec,0.62,0.59,-4.79
-Liver blood clearance,L/min,0.06,0.06,-9.46
-Liver extracellular volume fraction,mL/100cm3,28.16,19.25,-31.65
-RE for R1l at 20min,%,120.92,31.81,-73.7
-RE for Sl at 20min,%,93.65,30.06,-67.91
+Liver extracellular volume fraction,mL/100cm3,18.0,21.08,17.08
+Liver plasma clearance,L/min,0.1,0.02,-77.65
+RE for R1l at 20min,%,121.52,31.79,-73.84
+RE for Sl at 20min,%,100.85,26.89,-73.34

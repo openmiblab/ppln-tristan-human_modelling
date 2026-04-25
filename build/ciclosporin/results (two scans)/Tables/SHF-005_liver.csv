@@ -1,22 +1,21 @@
 Biomarker,Units,control,drug,change (%)
-AUC for Cl (0-35min),mM*sec,173.43,55.42,-68.04
-AUC for Cl (0-inf),mM*sec,601.74,260.13,-56.77
-Biliary excretion rate,mL/min/100cm3,1.3,0.69,-47.01
-Biliary tissue excretion rate,mL/min/100cm3,1.61,0.91,-43.55
-Extracellular dispersion,%,64.27,57.85,-9.99
-Extracellular mean transit time,sec,24.51,27.2,10.98
-Final biliary excretion rate,mL/min/100cm3,1.09,0.49,-55.24
-Final hepatocellular uptake rate,mL/min/100cm3,26.97,15.09,-44.04
-Hematocrit,%,45.0,45.0,0.0
-Hepatocellular mean transit time,min,62.24,110.25,77.14
-Hepatocellular tissue uptake rate,mL/min/100cm3,137.09,41.09,-70.03
-Hepatocellular uptake rate,mL/min/100cm3,25.82,9.79,-62.09
-Initial biliary excretion rate,mL/min/100cm3,1.63,1.19,-26.9
-Initial hepatocellular uptake rate,mL/min/100cm3,24.67,4.48,-81.83
+AUC for Cl (0-35min),mM*sec,178.82,62.81,-64.88
+AUC for Cl (0-inf),mM*sec,617.27,268.67,-56.48
+Biliary excretion rate,mL/min/100cm3,1.2,0.48,-60.0
+Biliary tissue excretion rate,/min,0.02,0.01,-44.7
+Final biliary excretion rate,mL/min/100cm3,0.99,0.35,-64.88
+Final hepatocellular uptake rate,mL/min/100cm3,9.62,5.6,-41.71
+Gut dispersion,%,56.09,55.89,-0.36
+Gut mean transit time,sec,23.8,21.51,-9.62
+Hepatocellular mean transit time,min,59.63,107.83,80.82
+Hepatocellular tissue uptake rate,/min,0.59,0.14,-76.83
+Hepatocellular uptake rate,mL/min/100cm3,9.19,3.61,-60.72
+Initial biliary excretion rate,mL/min/100cm3,1.51,0.77,-49.27
+Initial hepatocellular uptake rate,mL/min/100cm3,8.76,1.61,-81.58
 Liver T1-MOLLI at 45min,sec,0.49,0.71,43.83
 Liver T1-MOLLI at baseline,sec,0.79,0.79,0.33
 Liver T1-MOLLI at scan 2,sec,0.57,0.72,26.2
-Liver blood clearance,L/min,0.23,0.09,-61.8
-Liver extracellular volume fraction,mL/100cm3,18.83,23.82,26.47
-RE for R1l at 20min,%,69.98,15.67,-77.61
-RE for Sl at 20min,%,65.71,20.39,-68.97
+Liver extracellular volume fraction,mL/100cm3,15.66,26.55,69.5
+Liver plasma clearance,L/min,0.08,0.03,-60.42
+RE for R1l at 20min,%,69.48,15.71,-77.39
+RE for Sl at 20min,%,57.84,14.66,-74.66

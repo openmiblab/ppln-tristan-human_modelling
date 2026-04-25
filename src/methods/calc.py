@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import pingouin as pg
 import pydmr
+import dcmri as dc
 
 
 def lookup(path, params, prop): # TODO: dcmri.lookup_dmr()
@@ -63,6 +64,7 @@ def _derive_vart_effect_sizes(output):
         data=effect_size, 
         columns=['subject','parameter','value', 'tacq'],
     )
+
 
 
 def effect_size(src, ref=False):
