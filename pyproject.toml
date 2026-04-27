@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tristan-human_modelling"
+version = "0.1.0"
+dependencies = [
+  'pandas',
+  'numpy',
+  'matplotlib',
+  'pingouin',
+  'dcmri>=0.7.0',
+  'pydmr',
+  'miblab',
+  'miblab-data',
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# [project.optional-dependencies]
+# notebook = [
+#   "ipykernel",
+#   "jupyter",
+# ]

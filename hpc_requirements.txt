@@ -1,3 +1,0 @@
-pydmr==0.0.5
-miblab[data,report]==0.0.14
--e /mnt/parscratch/users/md1spsx/dcmri

@@ -1,0 +1,22 @@
+name: tristan
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core packages installed via Conda
+  - python=3.10
+  - joblib
+  - pandas
+  - numpy
+  - matplotlib
+  - pingouin
+  - ipykernel
+  - jupyter
+  - pip
+  
+  # Pip-only packages
+  - pip:
+    - miblab
+    - miblab-data
+    - pydmr
+    - -e C:/Users/md1spsx/Documents/GitHub/dcmri
