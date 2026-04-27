@@ -5,4 +5,5 @@ from . import (
     stage_4_stats,
     stage_5_tables,
     stage_6_figs,
+    stage_7_report,
 )

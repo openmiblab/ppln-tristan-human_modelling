@@ -43,7 +43,7 @@ def to_dmr(datafile, state_path, dir_results, scans, drug):
         results.append(file)
 
     file = os.path.join(dir_results, 'all_results')
-    pydmr.concat(results, file)
+    pydmr.concat(results, file, cleanup=True)
     wide_file = os.path.join(dir_results, 'all_results_wide.csv')
     pydmr.pars_to_wide(file, wide_file)
 

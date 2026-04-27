@@ -63,7 +63,17 @@ def save_results(state, datafile, dmrpath, drug):
     params['d_T1_1'] = {'name': 'Drug visit - liver T1-MOLLI at baseline', 'value': pars['drug']['T1_liver_1'], 'unit': 'sec', 'sdev': 0}
     params['d_T1_2'] = {'name': 'Drug visit - liver T1-MOLLI at 45min', 'value': pars['drug']['T1_liver_2'], 'unit': 'sec', 'sdev': 0}
     params['d_T1_3'] = {'name': 'Drug visit - liver T1-MOLLI at scan 2', 'value': pars['drug']['T1_liver_3'], 'unit': 'sec', 'sdev': 0}
- 
+
+    # Exclude uninteresting
+    excl = [
+        'H', 'TS', 
+        'c_B1corr_a', 'd_B1corr_a', 'c_B1corr_l', 'd_B1corr_l',
+        'c_R20s_a', 'c_R20s_l', 'd_R20s_a', 'd_R20s_l', 
+        'c_dose', 'd_dose', 
+        'd_tmax', 'c_tmax',
+        'dose_tolerance', 'dt', 'field_strength', 'rate'
+    ]
+    params = {k:v for k, v in params.items() if k not in excl}
     to_dmr(file, subj, params, drug)
     return file
 
