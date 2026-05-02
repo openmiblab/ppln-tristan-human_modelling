@@ -17,7 +17,11 @@ def run(build, logfile):
     dir_output = os.path.join(build, 'human_modelling', 'stage_6_figs')
     dir_data = os.path.join(build, 'human_modelling', 'stage_1_download')
     dir_results = os.path.join(build, 'human_modelling', 'stage_3_concatenate')
+    run_volunteers(dir_data, dir_results, dir_output)
+    run_patients(dir_data, dir_results, dir_output)
 
+
+def run_volunteers(dir_data, dir_results, dir_output):
     for scans in [1, 2]:
         for drug in ['rifampicin', 'ciclosporin', 'metformin']:
             file_data = os.path.join(dir_data, f'tristan_humans_healthy_{drug}.dmr.zip')
@@ -26,6 +30,16 @@ def run(build, logfile):
             
             figs.effect_plot_combined(file_output, dir_figs, drug)
             figs.diurnal_k_combined(file_data, file_output, dir_figs, drug)
+
+
+def run_patients(dir_data, dir_results, dir_output):
+    for scans in [1, 2]:
+        file_data = os.path.join(dir_data, f'tristan_humans_patients_rifampicin.dmr.zip')
+        file_output = os.path.join(dir_results, 'patients_rifampicin', f"scans_{scans}", 'all_results')
+        dir_figs = os.path.join(dir_output, 'patients_rifampicin', f"scans_{scans}")
+        
+        figs.effect_plot_combined(file_output, dir_figs, 'rifampicin')
+        figs.diurnal_k_combined(file_data, file_output, dir_figs, 'rifampicin')
 
 
 

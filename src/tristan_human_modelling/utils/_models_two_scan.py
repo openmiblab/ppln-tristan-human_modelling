@@ -2,8 +2,7 @@ import os
 import numpy as np
 import pydmr
 
-#from dcmri import AortaLiverDynamicDrug
-from .aorta_liver_dynamic_drug import AortaLiverDynamicDrug
+from dcmri import AortaLiverDynamicDrug
 
 def train(state, datafile, state_init='', staged=1):
     subj = os.path.basename(state).split('.')[0]
@@ -309,10 +308,10 @@ def model_train(model: AortaLiverDynamicDrug, data, subj, verbose=0, staged=0):
         verbose=verbose,
         free = {
             
-            # 'c_S0_2_a': [0.95, 1.05],
-            # 'd_S0_2_a': [0.95, 1.05],
-            # 'c_S0_2_l': [0.95, 1.05],
-            # 'd_S0_2_l': [0.95, 1.05],
+            'c_S0_2_a': [0.95, 1.05],
+            'd_S0_2_a': [0.95, 1.05],
+            'c_S0_2_l': [0.95, 1.05],
+            'd_S0_2_l': [0.95, 1.05],
             
             'c_BAT_2': [-30, 30],
             'd_BAT_2': [-30, 30],

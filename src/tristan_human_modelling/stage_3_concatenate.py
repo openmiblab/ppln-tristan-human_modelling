@@ -19,13 +19,25 @@ def run(build, logfile):
     dir_data = os.path.join(build, 'human_modelling', 'stage_1_download')
     dir_fits = os.path.join(build, 'human_modelling', 'stage_2_modelfit')
 
+    run_volunteers(dir_fits, dir_output, dir_data)
+    run_patients(dir_fits, dir_output, dir_data)
+
+
+def run_volunteers(dir_fits, dir_output, dir_data):
     for scans in [1, 2]:
         for drug in ['rifampicin', 'ciclosporin', 'metformin']:
             dir_state = os.path.join(dir_fits, drug, f"scans_{scans}", 'State')
             dir_results = os.path.join(dir_output, drug, f"scans_{scans}")
             datafile = os.path.join(dir_data, f'tristan_humans_healthy_{drug}.dmr.zip')
-
             to_dmr(datafile, dir_state, dir_results, scans, drug)
+
+
+def run_patients(dir_fits, dir_output, dir_data):
+    for scans in [1, 2]:
+        dir_state = os.path.join(dir_fits, 'patients_rifampicin', f"scans_{scans}", 'State')
+        dir_results = os.path.join(dir_output, 'patients_rifampicin', f"scans_{scans}")
+        datafile = os.path.join(dir_data, f'tristan_humans_patients_rifampicin.dmr.zip')
+        to_dmr(datafile, dir_state, dir_results, scans, 'rifampicin')
 
 
 def to_dmr(datafile, state_path, dir_results, scans, drug):

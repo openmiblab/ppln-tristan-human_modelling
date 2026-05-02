@@ -49,14 +49,6 @@ def color(index: float) -> str:
 
 
 
-
-
-
-
-
-
-
-
 def effect_plot_combined(file, figpath, drug):
     fig, (ax0, ax1, ax2) = plt.subplots(
         1, 3, width_ratios=[2, 4, 4], figsize=(8,3)

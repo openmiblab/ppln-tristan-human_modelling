@@ -3,10 +3,11 @@ import numpy as np
 import pydmr
 
 
-from dcmri import AortaLiverDrug
+#from dcmri import AortaLiverDrug
+from .aorta_liver_drug import AortaLiverDrug
 
 
-def train(state, datafile, state_init=''):
+def train(state, datafile, state_init='', staged=None):
     subj = os.path.basename(state).split('.')[0]
     data = pydmr.read(datafile, format='nest')
     model = model_init(data, subj, state_init)
@@ -66,7 +67,7 @@ def save_results(state, datafile, dmrpath, drug):
 
     # Exclude uninteresting
     excl = [
-        'H', 'TS', 
+        'c_FA', 'd_FA', 'H', 'TS', 
         'c_B1corr_a', 'd_B1corr_a', 'c_B1corr_l', 'd_B1corr_l',
         'c_R20s_a', 'c_R20s_l', 'd_R20s_a', 'd_R20s_l', 
         'c_dose', 'd_dose', 
@@ -147,8 +148,7 @@ def to_dmr(file, subj, pars, drug):
 
 AORTA_PARS = [
     'c_RE_Sb', 'c_RE_R1b', 'c_S02_a', 'd_S02_a', 'c_BAT', 'd_BAT', 
-    'Eb',
-    'CO', 'Thl', 'Dhl',
+    'GFR', 'CO', 'Thl', 'Dhl',
     'To', 'Eo', 'To_e', 'c_BAT2', 'd_BAT2', 'GFR',
     'c_AUC_R1b', 'c_AUC_Cb', 'c_AUC35_R1b', 'c_AUC35_Cb',
 ]
@@ -186,6 +186,14 @@ def model_init(data, subj, state_init):
     time_1_control = rois['control']['time_1'] - rois['control']['time_1'][0]
     time_1_drug = rois['drug']['time_1'] - rois['drug']['time_1'][0]
 
+    if 'eGFR_abs' in pars['screening']:
+        c_eGFR = pars['screening']['eGFR_abs']
+        d_eGFR = pars['screening']['eGFR_abs']
+    else:
+        c_eGFR = pars['control']['eGFR_abs']
+        d_eGFR = pars['drug']['eGFR_abs']
+    eGFR = (c_eGFR + d_eGFR) / 2
+
     pars = { 
 
         # Simulation parameters
@@ -204,7 +212,8 @@ def model_init(data, subj, state_init):
 
         # Acquisition parameters
         'TR': pars['control']['TR'], 
-        'FA': pars['control']['FA_1'],
+        'c_FA': pars['control']['FA_1'],
+        'd_FA': pars['drug']['FA_1'],
         'TS': np.min(time_1_control[1:] - time_1_control[:-1]), 
         
         # Signal parameters
@@ -227,8 +236,7 @@ def model_init(data, subj, state_init):
         'To': 20,
         'Eo': 0.15,
         'To_e': 120,
-        # 'GFR': pars['screening']['eGFR_abs'] / 60,
-        'Eb': 0.05,
+        'GFR': eGFR / 60,
 
         # Liver parameters
         've': 0.15,
@@ -266,7 +274,7 @@ def model_train(model:AortaLiverDrug, data, subj, verbose=0):
             'c_BAT': [-30, 30],
             'd_BAT': [-30, 30],
 
-            'Eb': [0.01, 0.15],
+            # 'GFR': [0.5, 3],
             'CO': [0, 300],
             'Thl': [0, 30],
             'Dhl': [0.05, 0.95],

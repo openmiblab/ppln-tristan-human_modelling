@@ -2,30 +2,36 @@ import os
 import numpy as np
 import pydmr
 
-#from dcmri import AortaLiverDynamicDrug
-from .aorta_liver_dynamic_drug import AortaLiverDynamicDrug
 
-def train(state, datafile, state_init='', staged=1):
+from dcmri import AortaLiverDrug
+
+
+def train(state, datafile, state_init='', staged=None):
     subj = os.path.basename(state).split('.')[0]
     data = pydmr.read(datafile, format='nest')
     model = model_init(data, subj, state_init)
-    model_train(model, data, subj, verbose=2, staged=staged)
+    model_train(model, data, subj, verbose=2)
     model.save(state)
 
 
-def save_plots(state, datafile, resultspath):   
+def save_plots(state, datafile, resultspath):
+
+    if not os.path.exists(resultspath):
+        return    
     plotpath = os.path.join(resultspath, 'Plots')
-    os.makedirs(plotpath, exist_ok=True)
+    if not os.path.exists(plotpath):
+        os.makedirs(plotpath)
 
     subj = os.path.basename(state).split('.')[0]
     name = subj
     file = os.path.join(plotpath, name)
+    if os.path.exists(file + '.png'):
+        return
 
     data = pydmr.read(datafile, format='nest')
     rois = data['rois'][subj]
-    model = AortaLiverDynamicDrug().load(state)
-    #model.set_params(tmax = [360 * 60, 360 * 60])
-    xdata, ydata = two_scan_one_model_data(rois)
+    model = AortaLiverDrug().load(state)
+    xdata, ydata = model_data(rois)
     file = os.path.join(plotpath, subj + '.png')
     model.plot(xdata, ydata, fname=file, show=False)
 
@@ -41,13 +47,13 @@ def save_results(state, datafile, dmrpath, drug):
     # rois = data['rois'][subj]
     pars = data['pars'][subj]
 
-    # xdata, ydata = two_scan_one_model_data(rois)
-    # tb, Sb, tl, Sl = xdata[0], ydata[0], xdata[2], ydata[2]
+    # xdata, ydata = model_data(rois)
+    # tb, Sb, tl, Sl = xdata[0], ydata[0], xdata[1], ydata[1]
     
-    model = AortaLiverDynamicDrug().load(state)
+    model = AortaLiverDrug().load(state)
     
     # Take this out for now until AUCs redefined
-    # model.set_params(dose_2 = [0,0])
+    # model.set_params(dose2 = [0,0])
     #params = export_params(model, tb, Sb, tl, Sl)
 
     params = model.export_params()
@@ -57,15 +63,14 @@ def save_results(state, datafile, dmrpath, drug):
     params['d_T1_1'] = {'name': 'Drug visit - liver T1-MOLLI at baseline', 'value': pars['drug']['T1_liver_1'], 'unit': 'sec', 'sdev': 0}
     params['d_T1_2'] = {'name': 'Drug visit - liver T1-MOLLI at 45min', 'value': pars['drug']['T1_liver_2'], 'unit': 'sec', 'sdev': 0}
     params['d_T1_3'] = {'name': 'Drug visit - liver T1-MOLLI at scan 2', 'value': pars['drug']['T1_liver_3'], 'unit': 'sec', 'sdev': 0}
- 
+
     # Exclude uninteresting
     excl = [
-        'c_FA_1', 'c_FA_2', 'd_FA_1', 'd_FA_2', 'H', 'TR', 'TS', 
-        'c_B1corr_1_a', 'd_B1corr_1_a', 'c_B1corr_1_l', 'd_B1corr_1_l',
-        'c_B1corr_2_a', 'd_B1corr_2_a', 'c_B1corr_2_l', 'd_B1corr_2_l',
+        'c_FA', 'd_FA', 'H', 'TS', 
+        'c_B1corr_a', 'd_B1corr_a', 'c_B1corr_l', 'd_B1corr_l',
         'c_R20s_a', 'c_R20s_l', 'd_R20s_a', 'd_R20s_l', 
-        'c_dose_1', 'c_dose_2', 'd_dose_1', 'd_dose_2', 
-        'd_t_scan2', 'd_tmax', 'c_t_scan2', 'c_tmax',
+        'c_dose', 'd_dose', 
+        'd_tmax', 'c_tmax',
         'dose_tolerance', 'dt', 'field_strength', 'rate'
     ]
     params = {k:v for k, v in params.items() if k not in excl}
@@ -74,12 +79,12 @@ def save_results(state, datafile, dmrpath, drug):
 
 
 
-def export_params(model:AortaLiverDynamicDrug, tb, Sb, tl, Sl):
+def export_params(model:AortaLiverDrug, tb, Sb, tl, Sl):
 
     # TODO: Redo AUC for control and drug visits separately
 
     # Compute AUC over 3hrs
-    BAT = model.params('c_BAT_1')
+    BAT = model.params()['c_BAT']
     t = model.time()
     C = model.conc()
     R1, R2s = model.relax()
@@ -113,9 +118,9 @@ def export_params(model:AortaLiverDynamicDrug, tb, Sb, tl, Sl):
     pars['c_RE_R1b']={'name': 'Control visit RE for R1b at 20min', 'value': RE_R1b, 'unit': '', 'sdev': 0}
     pars['c_RE_R1l']={'name': 'Control visit RE for R1l at 20min', 'value': RE_R1l, 'unit': '', 'sdev': 0}
     pars['c_RE_Sb']={'name': 'Control visit RE for Sb at 20min', 'value': RE_Sb, 'unit': '', 'sdev': 0}
-    pars['c_RE_Sl']={'name': 'Control visit RE for Sl at 20min', 'value': RE_Sl, 'unit': '', 'sdev': 0}         
+    pars['c_RE_Sl']={'name': 'Control visit RE for Sl at 20min', 'value': RE_Sl, 'unit': '', 'sdev': 0}    
 
-    return pars   
+    return pars 
  
 
 def to_dmr(file, subj, pars, drug):
@@ -141,65 +146,44 @@ def to_dmr(file, subj, pars, drug):
 
 
 AORTA_PARS = [
-    'RE_Sb', 'RE_R1b', 'c_S0_2_a', 'd_S0_2_a' 'c_BAT_1', 'd_BAT_1',
-    'GFR', 'CO', 'Thl', 'Dhl', 
-    'To', 'Eo', 'To_e', 'c_BAT_2', 'd_BAT_2', 
-    'AUC_R1b','AUC_Cb', 'AUC35_R1b','AUC35_Cb',
+    'c_RE_Sb', 'c_RE_R1b', 'c_S02_a', 'd_S02_a', 'c_BAT', 'd_BAT', 
+    'GFR', 'CO', 'Thl', 'Dhl',
+    'To', 'Eo', 'To_e', 'c_BAT2', 'd_BAT2', 'GFR',
+    'c_AUC_R1b', 'c_AUC_Cb', 'c_AUC35_R1b', 'c_AUC35_Cb',
 ]
 
 
+def model_data(rois):
 
-def two_scan_one_model_data(rois):
-
-    # Get time arrays
     time_1_control = rois['control']['time_1'] - rois['control']['time_1'][0]
-    time_2_control = rois['control']['time_2'] - rois['control']['time_1'][0]
     time_1_drug = rois['drug']['time_1'] - rois['drug']['time_1'][0]
-    time_2_drug = rois['drug']['time_2'] - rois['drug']['time_1'][0]
 
     xdata = (
         time_1_control[rois['control']['aorta_1_accept']], 
-        time_2_control[rois['control']['aorta_2_accept']], 
         time_1_control[rois['control']['liver_1_accept']],
-        time_2_control[rois['control']['liver_2_accept']],
         time_1_drug[rois['drug']['aorta_1_accept']], 
-        time_2_drug[rois['drug']['aorta_2_accept']], 
         time_1_drug[rois['drug']['liver_1_accept']],
-        time_2_drug[rois['drug']['liver_2_accept']],
     )
     ydata = (
         rois['control']['aorta_1'][rois['control']['aorta_1_accept']],
-        rois['control']['aorta_2'][rois['control']['aorta_2_accept']],
         rois['control']['liver_1'][rois['control']['liver_1_accept']],
-        rois['control']['liver_2'][rois['control']['liver_2_accept']],
         rois['drug']['aorta_1'][rois['drug']['aorta_1_accept']],
-        rois['drug']['aorta_2'][rois['drug']['aorta_2_accept']],
         rois['drug']['liver_1'][rois['drug']['liver_1_accept']],
-        rois['drug']['liver_2'][rois['drug']['liver_2_accept']],
     )
     return xdata, ydata
-
-
-def two_scan_sigma(time, baseline=540, weight=0.01):
-    sigma = tuple([np.ones_like(t) for t in time])
-    for i in [1, 3, 5, 7]:
-        sigma[i][time[i] < time[i][0] + baseline] = weight
-    return sigma
 
 
 def model_init(data, subj, state_init):
 
     if os.path.exists(state_init):
-        return AortaLiverDynamicDrug().load(state_init)
+        return AortaLiverDrug().load(state_init)
 
     rois = data['rois'][subj]
     pars = data['pars'][subj]
 
     # Get time arrays
     time_1_control = rois['control']['time_1'] - rois['control']['time_1'][0]
-    time_2_control = rois['control']['time_2'] - rois['control']['time_1'][0]
     time_1_drug = rois['drug']['time_1'] - rois['drug']['time_1'][0]
-    time_2_drug = rois['drug']['time_2'] - rois['drug']['time_1'][0]
 
     if 'eGFR_abs' in pars['screening']:
         c_eGFR = pars['screening']['eGFR_abs']
@@ -213,29 +197,22 @@ def model_init(data, subj, state_init):
 
         # Simulation parameters
         'dt': 0.1, 
-        'c_tmax': max(time_2_control),
-        'd_tmax_1': max(time_1_drug),
-        'd_tmax': max(time_2_drug),
-        'dose_tolerance': 0.1,
+        'c_tmax': max(time_1_control),
+        'd_tmax': max(time_1_drug),
+        'dose_tolerance': 0.1, # no effect moving to 0.01
         'field_strength': 3.0,
 
         # Injection parameters
         'weight': (pars['control']['weight'] + pars['drug']['weight']) / 2,
         'agent': 'gadoxetate',
-        'c_dose_1': pars['control']['dose_1'], 
-        'd_dose_1': pars['drug']['dose_1'],
+        'c_dose': pars['control']['dose_1'], 
+        'd_dose': pars['drug']['dose_1'],
         'rate': 1.0,
-        'c_dose_2':pars['control']['dose_2'], 
-        'd_dose_2': pars['drug']['dose_2'],
-        'c_t_scan2': pars['control']['T1_time_3'] - rois['control']['time_1'][0] - 120, 
-        'd_t_scan2': pars['drug']['T1_time_3'] - rois['drug']['time_1'][0] - 120,
 
         # Acquisition parameters
         'TR': pars['control']['TR'], 
-        'c_FA_1': pars['control']['FA_1'],
-        'c_FA_2': pars['control']['FA_2'],
-        'd_FA_1': pars['drug']['FA_1'],
-        'd_FA_2': pars['drug']['FA_2'],
+        'c_FA': pars['control']['FA_1'],
+        'd_FA': pars['drug']['FA_1'],
         'TS': np.min(time_1_control[1:] - time_1_control[:-1]), 
         
         # Signal parameters
@@ -250,10 +227,8 @@ def model_init(data, subj, state_init):
         'd_vol': pars['drug']['liver_volume'],
 
         # Aorta parameters
-        'c_BAT_2': 1200,
-        'd_BAT_2': 1200,
-        'c_BAT_1': 60,
-        'd_BAT_1': 60,
+        'c_BAT': 60, # irrelevant take out
+        'd_BAT': 60, # irrelevant
         'CO': 100,
         'Thl': 10,
         'Dhl': 0.2,
@@ -265,26 +240,23 @@ def model_init(data, subj, state_init):
         # Liver parameters
         've': 0.15,
         'Tg': 30,
-        'Dg': 0.85,
-        'c_khe_i': 0.0025,
-        'c_khe_f': 0.0025,
-        'd_khe_i': 0.0025,
-        'd_khe_f': 0.0025,
+        'Dg': 0.85, # reducing makes no difference
+        'c_khe': 0.0025,
+        'd_khe': 0.0025,
         'c_kbh': 0.00025,
         'd_kbh': 0.00025,
     }
 
-    return AortaLiverDynamicDrug(**pars) 
+    return AortaLiverDrug(**pars) 
 
 
-def model_train(model: AortaLiverDynamicDrug, data, subj, verbose=0, staged=0):
+def model_train(model:AortaLiverDrug, data, subj, verbose=0):
 
     rois = data['rois'][subj]
     pars = data['pars'][subj]
 
     # Get data at valid (accepted) time points
-    xdata, ydata = two_scan_one_model_data(rois)
-    # sigma = two_scan_sigma(xdata, baseline=540, weight=0.01)
+    xdata, ydata = model_data(rois)
 
     # Train the model to the data
     model.train(
@@ -292,52 +264,36 @@ def model_train(model: AortaLiverDynamicDrug, data, subj, verbose=0, staged=0):
         ydata, 
         n0=[
             max([np.sum(xdata[0] < pars['control']['t0']), 2]),
-            max([np.sum(xdata[4] < pars['drug']['t0']), 2]),
+            max([np.sum(xdata[0] < pars['drug']['t0']), 2]),
         ], 
-        R102a=[
-            1/pars['control']['T1_aorta_3'], 
-            1/pars['drug']['T1_aorta_3'],
-        ],
-        R102l=[
-            1/pars['control']['T1_liver_3'], 
-            1/pars['drug']['T1_liver_3'],
-        ],
-        xtol=1e-3,
-        # max_nfev=1,
-        # sigma=sigma,
-        staged=staged,
+        xtol=1e-3, # no improvement moving this to 1e-6
+        # max_nfev=1, # for debugging
         verbose=verbose,
         free = {
-            
-            # 'c_S0_2_a': [0.95, 1.05],
-            # 'd_S0_2_a': [0.95, 1.05],
-            # 'c_S0_2_l': [0.95, 1.05],
-            # 'd_S0_2_l': [0.95, 1.05],
-            
-            'c_BAT_2': [-30, 30],
-            'd_BAT_2': [-30, 30],
-            'c_BAT_1': [-30, 30],
-            'd_BAT_1': [-30, 30],
+            'c_BAT': [-30, 30],
+            'd_BAT': [-30, 30],
 
-            # 'Eb': [0.01, 0.15],
             # 'GFR': [0.5, 3],
             'CO': [0, 300],
             'Thl': [0, 30],
             'Dhl': [0.05, 0.95],
             'To': [0, 60],
             'Eo': [0, 0.5],
-            'To_e': [0, 800],
+            'To_e': [0, 800], # 2 hit the ceiling
+            # 'To_e': [0, 1200], # this keeps it away from the ceiling but little effect on outcomes
             've': [0.01, 0.3],
-            'Tg': [15, 180], 
+
+            # THIS IS CRITICAL!!!! Avoid hitting the ceiling.
+            #'Tg': [15, 60], # Original setting
+            'Tg': [15, 180], # Improved setting
             'Dg': [0, 1],
 
-            'c_khe_i': [0, 0.006],
-            'c_khe_f': [0, 0.006],
-            'd_khe_i': [0, 0.006],
-            'd_khe_f': [0, 0.006],
+            'c_khe': [0, 0.006],
+            'd_khe': [0, 0.006],
             'c_kbh': [0, 0.0006],
             'd_kbh': [0, 0.0006],
         },
+
     )
 
 

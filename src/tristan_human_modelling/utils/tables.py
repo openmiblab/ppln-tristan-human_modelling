@@ -109,6 +109,11 @@ def constants(statspath, tablespath):
             f"{np.round(desc.at['CO','mean'] * 60 / 1000, 1)} +/- {np.round(desc.at['CO','95%CI'] * 60 / 1000, 1)}", 
         ],
         [
+            'Glomerular Filtration Rate',
+            'mL/min',
+            f"{np.round(desc.at['GFR','mean'] * 60, 1)} +/- {np.round(desc.at['GFR','95%CI'] * 60, 1)}", 
+        ],
+        [
             'Heart-lung mean transit time',
             'sec',
             f"{np.round(desc.at['Thl','mean'], 0)} +/- {np.round(desc.at['Thl','95%CI'], 1)}", 
