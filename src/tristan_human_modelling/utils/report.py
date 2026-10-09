@@ -2,7 +2,7 @@ import os
 
 import miblab
 
-DRUGS = ['rifampicin', 'ciclosporin', 'metformin']
+STUDIES = ['rifampicin', 'ciclosporin', 'metformin', 'patients_rifampicin']
 
 
 def two_scans(        
@@ -27,52 +27,49 @@ def two_scans(
 
     doc.section('Rate constants')
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        table = os.path.join(resultspath, 'stage_5_tables', drug, 'scans_2', 'outcomes.csv')
-        caption = f"Primary outcomes for the drug {drug}."
+    for study in STUDIES:
+        table = os.path.join(resultspath, 'stage_5_tables', study, 'scans_2', 'outcomes.csv')
+        caption = f"Primary outcomes for the study {study}."
         doc.table(table, caption=caption)
 
     doc.section('Changes during the visit', clearpage=True)
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        table = os.path.join(resultspath, 'stage_5_tables', drug, 'scans_2', 'outcomes_diurnal.csv')
-        caption = f"Secondary outcomes for the drug {drug}."
+    for study in STUDIES:
+        table = os.path.join(resultspath, 'stage_5_tables', study, 'scans_2', 'outcomes_diurnal.csv')
+        caption = f"Secondary outcomes for the study {study}."
         doc.table(table, caption=caption) 
 
     doc.section('Constants', clearpage=True)
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        table = os.path.join(resultspath, 'stage_5_tables', drug, 'scans_2', 'constants.csv')
-        caption = f"Constants for the drug {drug}."
+    for study in STUDIES:
+        table = os.path.join(resultspath, 'stage_5_tables', study, 'scans_2', 'constants.csv')
+        caption = f"Constants for the study {study}."
         doc.table(table, caption=caption) 
 
     doc.chapter('Plots of outcomes')
 
     doc.section('Effect plots', clearpage=True)
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        fig = os.path.join(resultspath, 'stage_6_figs', drug, 'scans_2', '_effect_plot.png')
-        caption = f"Effect of the drug {drug}"
+    for study in STUDIES:
+        fig = os.path.join(resultspath, 'stage_6_figs', study, 'scans_2', '_effect_plot.png')
+        caption = f"Effect of the study {study}"
         doc.figure(fig, width='6in', caption=caption)
 
     doc.section('Diurnal variations', clearpage=True)
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        fig = os.path.join(resultspath, 'stage_6_figs', drug, 'scans_2', '_diurnal_function.png')
-        caption = f"Effect of the drug {drug}"
+    for study in STUDIES:
+        fig = os.path.join(resultspath, 'stage_6_figs', study, 'scans_2', '_diurnal_function.png')
+        caption = f"Effect of the study {study}"
         doc.figure(fig, width='7in', caption=caption)
 
     doc.chapter('Kinetics and model fits')
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        doc.section(drug, clearpage=True)
-
-        folder = os.path.join(resultspath, 'stage_2_modelfit', drug, 'scans_2', 'Plots')
-        files = [f for f in os.listdir(folder)]
-        for f in files:
-            fig = os.path.join(folder, f)
-            caption = f"Volunteer {f}, drug {drug}"
-            doc.figure(fig, width='7in', caption=caption)
+    folder = os.path.join(resultspath, 'stage_2_modelfit', 'scans_2', 'Plots')
+    files = [f for f in os.listdir(folder)]
+    for f in files:
+        fig = os.path.join(folder, f)
+        caption = f"Volunteer {f}"
+        doc.figure(fig, width='7in', caption=caption)
 
     doc.build()
 
@@ -100,37 +97,34 @@ def one_scan(
 
     doc.section('Rate constants')
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        table = os.path.join(resultspath, 'stage_5_tables', drug, 'scans_1', 'outcomes.csv')
-        caption = f"Primary outcomes for the drug {drug}."
+    for study in STUDIES:
+        table = os.path.join(resultspath, 'stage_5_tables', study, 'scans_1', 'outcomes.csv')
+        caption = f"Primary outcomes for the study {study}."
         doc.table(table, caption=caption) 
 
     doc.section('Constants', clearpage=True)
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        table = os.path.join(resultspath, 'stage_5_tables', drug, 'scans_1', 'constants.csv')
-        caption = f"Constants for the drug {drug}."
+    for study in STUDIES:
+        table = os.path.join(resultspath, 'stage_5_tables', study, 'scans_1', 'constants.csv')
+        caption = f"Constants for the study {study}."
         doc.table(table, caption=caption) 
 
     doc.chapter('Plots of outcomes')
 
     doc.section('Effect plots', clearpage=True)
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        fig = os.path.join(resultspath, 'stage_6_figs', drug, 'scans_1', '_effect_plot.png')
-        caption = f"Effect of the drug {drug}"
+    for study in STUDIES:
+        fig = os.path.join(resultspath, 'stage_6_figs', study, 'scans_1', '_effect_plot.png')
+        caption = f"Effect of the study {study}"
         doc.figure(fig, width='6in', caption=caption)
 
     doc.chapter('Kinetics and model fits')
 
-    for drug in DRUGS + ['patients_rifampicin']:
-        doc.section(drug, clearpage=True)
-
-        folder = os.path.join(resultspath, 'stage_2_modelfit', drug, 'scans_1', 'Plots')
-        files = [f for f in os.listdir(folder)]
-        for f in files:
-            fig = os.path.join(folder, f)
-            caption = f"Volunteer {f}, drug {drug}"
-            doc.figure(fig, width='7in', caption=caption)
+    folder = os.path.join(resultspath, 'stage_2_modelfit', 'scans_1', 'Plots')
+    files = [f for f in os.listdir(folder)]
+    for f in files:
+        fig = os.path.join(folder, f)
+        caption = f"Volunteer {f}"
+        doc.figure(fig, width='7in', caption=caption)
 
     doc.build()

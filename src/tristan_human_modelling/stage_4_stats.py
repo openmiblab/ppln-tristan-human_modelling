@@ -18,8 +18,18 @@ def run(build, logfile):
     dir_output = os.path.join(build, 'human_modelling', 'stage_4_stats')
     dir_data = os.path.join(build, 'human_modelling', 'stage_3_concatenate')
 
-    run_volunteers(dir_output, dir_data)
-    run_patients(dir_output, dir_data)
+    for scans in [1, 2]:
+        for study in ['rifampicin', 'ciclosporin', 'metformin', 'patients_rifampicin']:
+            dir_results = os.path.join(dir_output, study, f"scans_{scans}")
+            file_data = os.path.join(dir_data, f"scans_{scans}", 'all_results')
+
+            stats.describe(file_data, dir_results, study)
+            stats.ttest(file_data, dir_results, study)
+            if scans==2:
+                stats.ttest_diurnal(file_data, dir_results, study)
+
+    # run_volunteers(dir_output, dir_data)
+    # run_patients(dir_output, dir_data)
 
 
 def run_volunteers(dir_output, dir_data):
@@ -31,8 +41,6 @@ def run_volunteers(dir_output, dir_data):
 
             stats.describe(file_data, dir_results)
             stats.ttest(file_data, dir_results)
-            if drug in ['rifampicin', 'ciclosporin']:
-                stats.ttest_translation(file_data, dir_results, drug)
             if scans==2:
                 stats.ttest_diurnal(file_data, dir_results)
 

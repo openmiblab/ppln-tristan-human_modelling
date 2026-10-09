@@ -6,10 +6,11 @@ import numpy as np
 import pingouin as pg
 
 
-def describe(file, tablespath):
+def describe(file, tablespath, study):
     dmr = pydmr.read(file, 'pandas') 
+    pars = dmr['pars'][dmr['pars']['study'] == study]
 
-    summary = dmr['pars'].groupby("parameter")["value"].describe().reset_index()
+    summary = pars.groupby("parameter")["value"].describe().reset_index()
 
     # Add other descriptors
     summary['IQR'] = summary['75%'].values - summary ['25%'].values
@@ -23,9 +24,10 @@ def describe(file, tablespath):
     summary.to_csv(file, index=False)
 
 
-def ttest(file, tablespath):
+def ttest(file, tablespath, study):
     # TODO: handle warnings - remove constants from list of variables
     dmr = pydmr.read(file, 'pandas') 
+    pars = dmr['pars'][dmr['pars']['study'] == study]
 
     # Run pairwise (paired) tests across biomarker levels
     # - dv: dependent variable column name
@@ -35,7 +37,7 @@ def ttest(file, tablespath):
     # - padjust -> multiple comparisons adjustment (e.g., 'fdr_bh', 'bonf')
     # - effsize -> compute effect size ('cohen' gives Cohen's d)
     res = pg.pairwise_tests(
-        data=dmr['pars'],
+        data=pars,
         dv='value',
         within='parameter',
         subject='subject',
@@ -82,12 +84,13 @@ def ttest_translation(file, tablespath, drug):
     res.to_csv(file, index=True)
 
 
-def ttest_diurnal(file, tablespath):
+def ttest_diurnal(file, tablespath, study):
     # TODO: handle warnings - remove constants from list of variables
     dmr = pydmr.read(file, 'pandas') 
+    pars = dmr['pars'][dmr['pars']['study'] == study]
 
     # Test if mean parameter values are non-zero
-    res = dmr['pars'].groupby('parameter').apply(
+    res = pars.groupby('parameter').apply(
         lambda x: pg.ttest(x['value'], y=0),
         include_groups=False
     )

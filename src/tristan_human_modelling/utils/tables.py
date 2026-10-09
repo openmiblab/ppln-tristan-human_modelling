@@ -3,6 +3,26 @@ import os
 import numpy as np
 import pandas as pd
 
+def export_covariance_matrix(cov_array, param_names, output_filename="covariance_matrix.csv"):
+    """
+    Exports a square numpy covariance matrix as a CSV with parameter names as headers.
+    
+    Parameters:
+    -----------
+    cov_array : np.ndarray
+        A square 2D numpy array containing the covariance values.
+    param_names : list of str
+        A list of strings containing the parameter names matching the array dimensions.
+    output_filename : str
+        The path/filename for the exported CSV file.
+    """
+    # Build the pandas DataFrame
+    # 'index' sets the row labels, 'columns' sets the top headers
+    df = pd.DataFrame(cov_array, index=param_names, columns=param_names)
+    
+    # 3. Export to CSV
+    # index_label='Parameter' puts a clear title in the top-left empty cell (A1)
+    df.to_csv(output_filename, index_label='Parameter')
 
 
 def outcomes(statspath, tablespath):
@@ -104,14 +124,14 @@ def constants(statspath, tablespath):
 
     rows = [
         [
-            'Cardiac output',
-            'L/min',
-            f"{np.round(desc.at['CO','mean'] * 60 / 1000, 1)} +/- {np.round(desc.at['CO','95%CI'] * 60 / 1000, 1)}", 
-        ],
-        [
             'Glomerular Filtration Rate',
             'mL/min',
             f"{np.round(desc.at['GFR','mean'] * 60, 1)} +/- {np.round(desc.at['GFR','95%CI'] * 60, 1)}", 
+        ],
+        [
+            'Cardiac output',
+            'L/min',
+            f"{np.round(desc.at['CO','mean'] * 60 / 1000, 1)} +/- {np.round(desc.at['CO','95%CI'] * 60 / 1000, 1)}", 
         ],
         [
             'Heart-lung mean transit time',
@@ -138,16 +158,16 @@ def constants(statspath, tablespath):
             'min',
             f"{np.round(desc.at['To_e','mean'] / 60, 1)} +/- {np.round(desc.at['To_e','95%CI'] / 60, 1)}", 
         ],
-        [
-            'Gut mean transit time',
-            'sec',
-            f"{np.round(desc.at['Tg','mean'], 0)} +/- {np.round(desc.at['Tg','95%CI'], 1)}", 
-        ],
-        [
-            'Gut dispersion',
-            '%',
-            f"{np.round(100 * desc.at['Dg','mean'], 0)} +/- {np.round(100 * desc.at['Dg','95%CI'], 0)}", 
-        ],
+        # [
+        #     'Gut mean transit time',
+        #     'sec',
+        #     f"{np.round(desc.at['Tg','mean'], 0)} +/- {np.round(desc.at['Tg','95%CI'], 1)}", 
+        # ],
+        # [
+        #     'Gut dispersion',
+        #     '%',
+        #     f"{np.round(100 * desc.at['Dg','mean'], 0)} +/- {np.round(100 * desc.at['Dg','95%CI'], 0)}", 
+        # ],
         [
             'Liver extracellular volume fraction',
             '%',

@@ -4,6 +4,8 @@ import matplotlib
 matplotlib.use('Agg')  # Use the non-interactive backend for generating figures
 import matplotlib.pyplot as plt
 import pydmr
+import pandas as pd
+import seaborn as sns
 
 
 sym = {
@@ -49,19 +51,18 @@ def color(index: float) -> str:
 
 
 
-def effect_plot_combined(file, figpath, drug):
+def effect_plot_combined(file, figpath, study):
     fig, (ax0, ax1, ax2) = plt.subplots(
         1, 3, width_ratios=[2, 4, 4], figsize=(8,3)
     )
     fig.subplots_adjust(wspace=0.5)
 
-    def _effect_box_plots_combined():
-
-        pars = pydmr.read(file)['pars']
+    def _effect_box_plots_combined(study):
+        pars = pydmr.read(file, study=study)['pars']
         subjects = sorted(list({k[0] for k in pars}))
         all_data = [
-            [100 * pars[(s, drug, 'r_khe')] for s in subjects],
-            [100 * pars[(s, drug, 'r_kbh')] for s in subjects],
+            [100 * pars[(s, study, 'r_khe')] for s in subjects],
+            [100 * pars[(s, study, 'r_kbh')] for s in subjects],
         ]
 
         pars = ['khe', 'kbh']
@@ -102,9 +103,11 @@ def effect_plot_combined(file, figpath, drug):
         ax0.yaxis.grid(True)
         ax0.set_ylabel('Relative effect size (%)', fontsize=fontsize)
 
-    def _line_plots_combined():
+    def _line_plots_combined(study):
         ylim = [40,4]
-        pars = pydmr.read(file)['pars']
+        data = pydmr.read(file, study=study)
+        pars = data['pars']
+        sdev = data['sdev']
         subjects = sorted(list({k[0] for k in pars}))
         study = list({k[1] for k in pars})[0]
 
@@ -125,15 +128,40 @@ def effect_plot_combined(file, figpath, drug):
             x = ['control', 'treatment']
             khe = [6000 * pars[(s, study, 'c_khe')], 6000 * pars[(s, study, 'd_khe')]]
             kbh = [6000 * pars[(s, study, 'c_kbh')], 6000 * pars[(s, study, 'd_kbh')]]
+            khe_err = [6000 * sdev[(s, study, 'c_khe')], 6000 * sdev[(s, study, 'd_khe')]]
+            kbh_err = [6000 * sdev[(s, study, 'c_kbh')], 6000 * sdev[(s, study, 'd_kbh')]]
             si = i/len(subjects)  
-            ax1.plot(x, khe, '-', label=s, marker=mark[int(i+1)], 
-                    markersize=markersize, color=color(si))
-            ax2.plot(x, kbh, '-', label=s, marker=mark[int(i+1)], 
-                    markersize=markersize, color=color(si))
+
+            # ax1.plot(x, khe, '-', label=s, marker=mark[int(i+1)], markersize=markersize, color=color(si))
+            # ax2.plot(x, kbh, '-', label=s, marker=mark[int(i+1)], markersize=markersize, color=color(si))
+
+            ax1.errorbar(
+                x, khe,
+                yerr=khe_err,          # Error values for khe
+                fmt='-',
+                marker=mark[int(i+1)],
+                markersize=markersize,
+                color=color(si),
+                label=s,
+                capsize=3              # Small horizontal caps
+            )
+
+            ax2.errorbar(
+                x, kbh,
+                yerr=kbh_err,          # Error values for kbh
+                fmt='-',
+                marker=mark[int(i+1)],
+                markersize=markersize,
+                color=color(si),
+                label=s,
+                capsize=3
+            )
+
+
         ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
-    _effect_box_plots_combined()
-    _line_plots_combined()
+    _effect_box_plots_combined(study)
+    _line_plots_combined(study)
 
     file = os.path.join(figpath, '_effect_plot.png')
     os.makedirs(figpath, exist_ok=True)
@@ -143,7 +171,7 @@ def effect_plot_combined(file, figpath, drug):
 
 
 
-def diurnal_k_combined(datafile, output_file, figpath, drug, ylim=[40,40,4,4]):
+def diurnal_k_combined(datafile, output_file, figpath, study, ylim=[40,40,4,4]):
     fontsize=10
     titlesize=12
     markersize=6
@@ -188,8 +216,8 @@ def diurnal_k_combined(datafile, output_file, figpath, drug, ylim=[40,40,4,4]):
     ax4.tick_params(axis='y', labelsize=fontsize)
 
     # Create line plots
-    data = pydmr.read(datafile, format='nest')
-    pars = pydmr.read(output_file)['pars']
+    data = pydmr.read(datafile, format='nest', study=study)
+    pars = pydmr.read(output_file, study=study)['pars']
     subjects = sorted(list({k[0] for k in pars}))
     for i, s in enumerate(subjects):
 
@@ -207,13 +235,13 @@ def diurnal_k_combined(datafile, output_file, figpath, drug, ylim=[40,40,4,4]):
             t = np.arange(t0, t0 + tm, 1)
 
             # Skip if constant (one scan protocol)
-            if (s, drug, f'{visit}_khe_i') not in pars:
+            if (s, study, f'{visit}_khe_i') not in pars:
                 return
             
             # khe
             # Interpolate parameters on acquisition time
-            khe_i = pars[(s, drug, f'{visit}_khe_i')]
-            khe_f = pars[(s, drug, f'{visit}_khe_f')]
+            khe_i = pars[(s, study, f'{visit}_khe_i')]
+            khe_f = pars[(s, study, f'{visit}_khe_f')]
             khe = np.interp(t, [t[0], t[-1]], [khe_i, khe_f])              
 
             # Plot parameters
@@ -226,14 +254,14 @@ def diurnal_k_combined(datafile, output_file, figpath, drug, ylim=[40,40,4,4]):
 
             # kbh
             if visit=='c':
-                kbh = t * 0 + pars[(s, drug, f'{visit}_kbh')]
+                kbh = t * 0 + pars[(s, study, f'{visit}_kbh')]
             elif visit=='d':
-                # vh = pars[(s, drug, f'vh')]
-                # Th_i = vh / pars[(s, drug, f'{visit}_kbh_i')]
-                # Th_f = vh / pars[(s, drug, f'{visit}_kbh_f')]
+                # vh = pars[(s, study, f'vh')]
+                # Th_i = vh / pars[(s, study, f'{visit}_kbh_i')]
+                # Th_f = vh / pars[(s, study, f'{visit}_kbh_f')]
                 # Th = np.interp(t, [t[0], t[-1]], [Th_i, Th_f])
                 # kbh = vh / Th 
-                kbh = t * 0 + pars[(s, drug, f'{visit}_kbh')]
+                kbh = t * 0 + pars[(s, study, f'{visit}_kbh')]
             
             # Plot parameters
             si = i/len(subjects)
@@ -249,3 +277,52 @@ def diurnal_k_combined(datafile, output_file, figpath, drug, ylim=[40,40,4,4]):
     os.makedirs(figpath, exist_ok=True)
     plt.savefig(fname=plot_file)
     plt.close()
+
+
+
+
+def export_csv_to_heatmap(csv_filename, output_png_filename="covariance_heatmap.png"):
+    """
+    Loads a parameter covariance CSV file and exports it as a heatmap image.
+    
+    Parameters:
+    -----------
+    csv_filename : str
+        Path to the CSV file generated by the previous function.
+    output_png_filename : str
+        Path/filename where the final heatmap image should be saved.
+    """
+    # 1. Load the CSV 
+    # index_col=0 treats the first column ('Parameter') as row labels instead of data
+    df = pd.read_csv(csv_filename, index_col=0)
+    
+    # 2. Setup the matplotlib figure size 
+    # (Adjust dimensions dynamically based on number of variables if needed)
+    plt.figure(figsize=(8, 6))
+    
+    # 3. Draw the heatmap using Seaborn
+    #   - cmap='coolwarm': Excellent divergence map (red = positive, blue = negative)
+    #   - annot=True: Explicitly prints the numerical covariance values in each cell
+    #   - fmt=".3f": Formats the printed numbers to 3 decimal places
+    #   - linewidths=.5: Adds a clean white border grid between cells
+    sns.heatmap(
+        df, 
+        cmap='coolwarm', 
+        annot=False, 
+        fmt=".3f", 
+        linewidths=.5,
+        square=True, # Forces cells to be perfectly square
+        cbar_kws={'label': 'Covariance Magnitude'}, # Title for the color bar
+        vmin=-0.025,         # <--- Set fixed lower bound
+        vmax=0.025,          # <--- Set fixed upper bound
+    )
+    
+    # 4. Add clear structural labels
+    plt.title("Parameter Covariance Matrix Heatmap", fontsize=14, pad=15)
+    plt.tight_layout() # Prevents parameter names from getting cut off at edges
+    
+    # 5. Export to disk
+    # dpi=300 ensures the image is high-resolution for presentations or reports
+    plt.savefig(output_png_filename, dpi=300)
+    plt.close() # Free up memory
+

@@ -17,29 +17,14 @@ def run(build, logfile):
     dir_stats = os.path.join(build, 'human_modelling', 'stage_4_stats')
     dir_output = os.path.join(build, 'human_modelling', 'stage_5_tables')
 
-    run_volunteers(dir_stats, dir_output)
-    run_patients(dir_stats, dir_output)
-
-
-def run_volunteers(dir_input, dir_output):
     for scans in [1, 2]:
-        for drug in ['rifampicin', 'ciclosporin', 'metformin']:
-            dir_stats = os.path.join(dir_input, drug, f"scans_{scans}")
-            dir_tables = os.path.join(dir_output, drug, f"scans_{scans}")
+        for study in ['rifampicin', 'ciclosporin', 'metformin', 'patients_rifampicin']:
+            dir_study_stats = os.path.join(dir_stats, study, f"scans_{scans}")
+            dir_tables = os.path.join(dir_output, study, f"scans_{scans}")
 
-            tables.outcomes(dir_stats, dir_tables)
-            tables.outcomes_diurnal(dir_stats, dir_tables, scans)
-            tables.constants(dir_stats, dir_tables)
-
-
-def run_patients(dir_input, dir_output):
-    for scans in [1, 2]:
-        dir_stats = os.path.join(dir_input, 'patients_rifampicin', f"scans_{scans}")
-        dir_tables = os.path.join(dir_output, 'patients_rifampicin', f"scans_{scans}")
-
-        tables.outcomes(dir_stats, dir_tables)
-        tables.outcomes_diurnal(dir_stats, dir_tables, scans)
-        tables.constants(dir_stats, dir_tables)
+            tables.outcomes(dir_study_stats, dir_tables)
+            tables.outcomes_diurnal(dir_study_stats, dir_tables, scans)
+            tables.constants(dir_study_stats, dir_tables)
 
 
 

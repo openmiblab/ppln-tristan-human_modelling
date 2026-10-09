@@ -51,7 +51,7 @@ def egfr_ckd_epi(crea, age, sex, black):
                 return 141*(crea/0.9)**(-1.209) * 0.993**age
 
 
-def add_derived_variables(datafile, resultsfile):
+def add_derived_variables(datafile, resultsfile, study):
 
     dmr = pydmr.read(datafile)
     # dmr['data'] = {k: v[:3] for k,v in dmr['data'].items()}
@@ -60,6 +60,7 @@ def add_derived_variables(datafile, resultsfile):
     dmr['data']['eGFR'] = ['estimated Glomerular Filtration Rate (CKD-EPI)', 'mL/min/1.73m2', 'float']
     dmr['data']['BSA'] = ['Body surface area (duBois duBois)', 'm2', 'float']
     dmr['data']['eGFR_abs'] = ['estimated absolute Glomerular Filtration Rate (CKD-EPI)', 'mL/min', 'float']
+    dmr['data']['Study'] = ['Study', '', 'str']
 
     # Extend values
     pars = dmr['pars']
@@ -72,6 +73,7 @@ def add_derived_variables(datafile, resultsfile):
         black = False
         bsa = bsa_dbdb(height, weight)
         dmr['pars'][(subj, 'screening', 'BSA')] = bsa
+        dmr['pars'][(subj, 'screening', 'Study')] = study
 
         for visit in ['control', 'drug', 'screening']:
             if (subj, visit, 'Crea') in pars:
@@ -82,18 +84,3 @@ def add_derived_variables(datafile, resultsfile):
 
 
     pydmr.write(resultsfile, dmr)
-
-
-
-if __name__ == '__main__':
-
-    BASE = 'C:\\Users\\md1spsx\\Documents\\GitHub\\tristan-human-stage-2-modelling'
-    DATA = os.path.join(BASE, 'data')
-    BUILD = os.path.join(BASE, 'wip', 'build')
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data", type=str, default=DATA, help="Data folder")
-    parser.add_argument("--build", type=str, default=BUILD, help="Build folder")
-    args = parser.parse_args()
-
-    add_derived_variables(args.data, args.build)

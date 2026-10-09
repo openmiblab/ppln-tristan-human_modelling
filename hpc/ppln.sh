@@ -1,7 +1,7 @@
 #!/bin/bash   
-#SBATCH --mem=32G         
-#SBATCH --cpus-per-task=16
-#SBATCH --time=24:00:00
+#SBATCH --mem=48G         
+#SBATCH --cpus-per-task=24
+#SBATCH --time=96:00:00
 #SBATCH --mail-user=s.sourbron@sheffield.ac.uk
 #SBATCH --mail-type=FAIL,END
 #SBATCH --job-name=tristan

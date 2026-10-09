@@ -15,6 +15,7 @@ dependencies = [
   'miblab-data',
   'pydmr',
   'dcmri',
+  'seaborn',
 ]
 
 [tool.setuptools.packages.find]
