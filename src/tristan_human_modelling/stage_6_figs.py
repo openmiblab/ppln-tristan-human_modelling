@@ -2,15 +2,16 @@ import os
 import logging
 
 from miblab.pipe import run_stage
-
-import utils.models_one_scan
-import utils.models_two_scan
 from utils import figs
 
+import utils.models
+
 MODELS = {
-    1: utils.models_one_scan,
-    2: utils.models_two_scan,
+    1: utils.models.one_scan,
+    2: utils.models.two_scan,
 }
+
+PIPELINE = 'human_modelling'
 
 
 def run(build, logfile):

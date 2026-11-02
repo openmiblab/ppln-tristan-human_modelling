@@ -4,11 +4,10 @@ import tristan_human_modelling as ppln
 
 
 def run(build, logfile):
-    ppln.stage_1_download.run(build, logfile)
-    ppln.stage_2_modelfit.run(build, logfile)
-    ppln.stage_3_concatenate.run(build, logfile)
-    ppln.stage_4_stats.run(build, logfile)
-    ppln.stage_5_tables.run(build, logfile)
+    ppln.stage_1_modelfit.run(build, logfile)
+    ppln.stage_2_concatenate.run(build, logfile)
+    ppln.stage_3_stats.run(build, logfile)
+    ppln.stage_4_tables.run(build, logfile)
     ppln.stage_6_figs.run(build, logfile)
     ppln.stage_7_report.run(build, logfile)
 
