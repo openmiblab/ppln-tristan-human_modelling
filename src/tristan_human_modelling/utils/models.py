@@ -8,6 +8,7 @@ CONFIG = {
     'heartlung': 'chain',          # Smoother first pass data
     'organs': '2cxm',              # Long acquisition times reveal extravasation
     'lagut': 'comp',
+    #'lagut': 'plucom',
     'liver': '1I-IC',              # Intracellular agent
     'baseline': 'measured',        # Data are available on precontrast T1
     'sequence': 'ZTE-3D-SPGR-SS',  # Echo times are assumed to be zero
@@ -23,16 +24,21 @@ INIT = {
     'dose_tolerance': 0.01,
     'H': 0.45,
 
-    'fCO_li': 0.10,
+    'fCO_li': 0.20,
     'CO': 100,
     'T_hl': 10,
-    'D_hl': 0.5,
-    'T_b_or': 20,
-    'E_or': 0.15,
+    'D_hl': 0.05,
+    'T_b_or': 5,
+    'E_or': 0.25,
     'vr_or': 0.9,
     'T_e_or': 120,
+
     'T_lag': 30,
     #'D_lag': 0.5,
+    # 'T_la': 1,
+    # 'T_gu': 20,
+    # 'ffa': 0.2,
+
     'v_e_li': 0.25,
     'T_1_h': 4 * 60 * 60,
     'T_2_h': 4 * 60 * 60,
@@ -46,12 +52,17 @@ FREE = {
     'CO': (30, 300),
     'T_hl': (0, 30),
     'D_hl': (0.01, 0.99),
-    'T_b_or': (0, 60),
+    'T_b_or': (2, 60),
     'E_or': (0, 0.5),
     'vr_or': (0.5, 1.0),
     'T_e_or': (0, 800), 
+
     'T_lag': (0, 120),
     #'D_lag': (0, 1),
+    # 'T_la': (0, 5),
+    # 'T_gu': (0, 120),
+    # 'ffa': (0, 1),
+
     'v_e_li': (0.01, 0.5),
     'T_1_h': (600, 6 * 60 * 60),
     'T_2_h': (600, 6 * 60 * 60),

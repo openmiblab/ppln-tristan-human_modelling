@@ -15,8 +15,8 @@ PIPELINE = 'human_modelling'
 #  TODO: try la and gut plucom for better first pass
 
 def run(build, logfile):
-    # run_one_scan(build, logfile)
-    run_two_scans(build, logfile)
+    run_one_scan(build, logfile)
+    # run_two_scans(build, logfile)
 
 
 def run_one_scan(build, logfile):
