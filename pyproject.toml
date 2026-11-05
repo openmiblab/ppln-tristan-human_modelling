@@ -6,16 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "tristan-human_modelling"
 version = "0.1.0"
 dependencies = [
-  'joblib',
-  'pandas',
-  'numpy',
-  'matplotlib',
-  'pingouin',
-  'miblab',
-  'miblab-data',
-  'pydmr',
-  'dcmri',
-  'seaborn',
 ]
 
 [tool.setuptools.packages.find]

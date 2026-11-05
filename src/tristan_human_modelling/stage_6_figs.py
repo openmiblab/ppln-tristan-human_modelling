@@ -1,35 +1,27 @@
 import os
 import logging
 
+import dcmri as dc
+
 from miblab.pipe import run_stage
-from utils import figs
-
-import utils.models
-
-MODELS = {
-    1: utils.models.one_scan,
-    2: utils.models.two_scan,
-}
+from tristan_human_modelling.utils import figs
 
 PIPELINE = 'human_modelling'
 
 
 def run(build, logfile):
     dir_output = os.path.join(build, 'human_modelling', 'stage_6_figs')
-    dir_data = os.path.join(build, 'human_modelling', 'stage_1_download')
     dir_results = os.path.join(build, 'human_modelling', 'stage_3_concatenate')
 
-    for scans in [1, 2]:
-        for study in ['rifampicin', 'ciclosporin', 'metformin', 'patients_rifampicin']:
-            file_data = os.path.join(dir_data, f'dataset.dmr.zip')
-            file_output = os.path.join(dir_results, f"scans_{scans}", 'all_results')
-            dir_figs = os.path.join(dir_output, study, f"scans_{scans}")
+    for scans in [[1], [1,2]]:
+        dir_scans = f"scans_{len(scans)}"
+        for study in ['healthy_rifampicin', 'healthy_ciclosporin', 'healthy_metformin', 'patients_rifampicin']:
+            file_data = dc.fetch(f"tristan_humans_{study}")
+            file_output = os.path.join(dir_results, dir_scans, 'all_results')
+            dir_figs = os.path.join(dir_output, dir_scans, study)
             
-            figs.effect_plot_combined(file_output, dir_figs, study)
-            figs.diurnal_k_combined(file_data, file_output, dir_figs, study)
-
-
-
+            figs.effect_plot_combined(file_output, dir_figs, f"tristan_humans_{study}")
+            figs.diurnal_k_combined(file_data, file_output, dir_figs, f"tristan_humans_{study}")
 
 
 if __name__ == '__main__':

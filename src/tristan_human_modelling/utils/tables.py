@@ -7,8 +7,8 @@ import pandas as pd
 
 def outcomes(statspath, tablespath):
 
-    cols = ['Biomarker', 'Control', 'Treatment', 'Effect size', 'Effect size', 'p-value', 'range']
-    units = ['', 'mL/min/100mL', 'mL/min/100mL', 'mL/min/100mL', '%', '', '%']
+    cols = ['Biomarker', 'Control', 'Treatment', 'Effect size', 'p-value', 'range']
+    units = ['', 'mL/min/100mL', 'mL/min/100mL', '%', '', '%']
 
     file = os.path.join(statspath, f'ttest.csv')
     ttest = pd.read_csv(file)
@@ -18,22 +18,20 @@ def outcomes(statspath, tablespath):
     rows = [
         units,
         [
-            'khe',
-            f"{np.round(6000 * desc.at['k_1_e2h','mean'], 1)} +/- {np.round(6000 * desc.at['c_khe','95%CI'], 1)}", 
-            f"{np.round(6000 * desc.at['d_khe','mean'], 1)} +/- {np.round(6000 * desc.at['d_khe','95%CI'], 1)}", 
-            f"{np.round(6000 * desc.at['a_khe','mean'], 1)} +/- {np.round(6000 * desc.at['a_khe','95%CI'], 1)}", 
-            f"{np.round(100 * desc.at['r_khe','mean'], 1)} +/- {np.round(100 * desc.at['r_khe','95%CI'], 1)}", 
-            np.round(ttest[(ttest['A']=='c_khe') & (ttest['B']=='d_khe')]['p_unc'].values[0], 4),
-            f"{np.round(100 * desc.at['r_khe','range'], 1)}",
+            'k_e2h',
+            f"{6000 * desc.at['k_1_e2h','mean']:.2g} +/- {6000 * desc.at['k_1_e2h','95%CI']:.2g}", 
+            f"{6000 * desc.at['k_2_e2h','mean']:.2g} +/- {6000 * desc.at['k_2_e2h','95%CI']:.2g}", 
+            f"{100 * desc.at['ke_e2h','mean']:.2g} +/- {100 * desc.at['ke_e2h','95%CI']:.2g}", 
+            f"{ttest[(ttest['A']=='k_1_e2h') & (ttest['B']=='k_2_e2h')]['p_unc'].values[0]:.2g}",
+            f"{100 * desc.at['ke_e2h','range']:.2g}",
         ],
         [   
-            'kbh',
-            f"{np.round(6000 * desc.at['c_kbh','mean'], 1)} +/- {np.round(6000 * desc.at['c_kbh','95%CI'], 1)}", 
-            f"{np.round(6000 * desc.at['d_kbh','mean'], 1)} +/- {np.round(6000 * desc.at['d_kbh','95%CI'], 1)}", 
-            f"{np.round(6000 * desc.at['a_kbh','mean'], 1)} +/- {np.round(6000 * desc.at['a_kbh','95%CI'], 1)}", 
-            f"{np.round(100 * desc.at['r_kbh','mean'], 1)} +/- {np.round(100 * desc.at['r_kbh','95%CI'], 1)}", 
-            np.round(ttest[(ttest['A']=='c_kbh') & (ttest['B']=='d_kbh')]['p_unc'].values[0], 4), 
-            f"{np.round(100 * desc.at['r_kbh','range'], 1)}",
+            'k_h2b',
+            f"{6000 * desc.at['k_1_h2b','mean']:.2g} +/- {6000 * desc.at['k_1_h2b','95%CI']:.2g}", 
+            f"{6000 * desc.at['k_2_h2b','mean']:.2g} +/- {6000 * desc.at['k_2_h2b','95%CI']:.2g}", 
+            f"{100 * desc.at['ke_h2b','mean']:.2g} +/- {100 * desc.at['ke_h2b','95%CI']:.2g}", 
+            f"{ttest[(ttest['A']=='k_1_h2b') & (ttest['B']=='k_2_h2b')]['p_unc'].values[0]:.2g}", 
+            f"{100 * desc.at['ke_h2b','range']:.2g}",
         ]
     ]
 
@@ -60,32 +58,23 @@ def outcomes_diurnal(statspath, tablespath, scans):
     rows = [
         units,
         [
-            'khe', 
+            'k_e2h', 
             'Control',
-            f"{np.round(6000 * desc.at['c_khe_i','mean'], 1)} +/- {np.round(6000 * desc.at['c_khe_i','95%CI'], 1)}", 
-            f"{np.round(6000 * desc.at['c_khe_f','mean'], 1)} +/- {np.round(6000 * desc.at['c_khe_f','95%CI'], 1)}", 
-            f"{np.round(100 * desc.at['c_dkhe','mean'], 1)} +/- {np.round(100 * desc.at['c_dkhe','95%CI'], 1)}",  
-            np.round(ttest[ttest['parameter']=='c_dkhe']['p_val'].values[0], 4),
-            f"{np.round(100 * desc.at['c_dkhe','range'], 1)}",
+            f"{6000 * desc.at['ki_1_e2h','mean']:.2g} +/- {6000 * desc.at['ki_1_e2h','95%CI']:.2g}", 
+            f"{6000 * desc.at['kf_1_e2h','mean']:.2g} +/- {6000 * desc.at['kf_1_e2h','95%CI']:.2g}", 
+            f"{100 * desc.at['kc_1_e2h','mean']:.2g} +/- {100 * desc.at['kc_1_e2h','95%CI']:.2g}",  
+            f"{ttest[ttest['parameter']=='kc_1_e2h']['p_val'].values[0]:.2g}",
+            f"{100 * desc.at['kc_1_e2h','range']:.2g}",
         ],
         [
-            'khe', 
+            'k_e2h', 
             'Treatment',
-            f"{np.round(6000 * desc.at['d_khe_i','mean'], 1)} +/- {np.round(6000 * desc.at['d_khe_i','95%CI'], 1)}", 
-            f"{np.round(6000 * desc.at['d_khe_f','mean'], 1)} +/- {np.round(6000 * desc.at['d_khe_f','95%CI'], 1)}", 
-            f"{np.round(100 * desc.at['d_dkhe','mean'], 1)} +/- {np.round(100 * desc.at['d_dkhe','95%CI'], 1)}",  
-            np.round(ttest[ttest['parameter']=='d_dkhe']['p_val'].values[0], 4),
-            f"{np.round(100 * desc.at['d_dkhe','range'], 1)}",
+            f"{6000 * desc.at['ki_2_e2h','mean']:.2g} +/- {6000 * desc.at['ki_2_e2h','95%CI']:.2g}", 
+            f"{6000 * desc.at['kf_2_e2h','mean']:.2g} +/- {6000 * desc.at['kf_2_e2h','95%CI']:.2g}", 
+            f"{100 * desc.at['kc_2_e2h','mean']:.2g} +/- {100 * desc.at['kc_2_e2h','95%CI']:.2g}",  
+            f"{ttest[ttest['parameter']=='kc_2_e2h']['p_val'].values[0]:.2g}",
+            f"{100 * desc.at['kc_2_e2h','range']:.2g}",
         ],
-        # [
-        #     'kbh', 
-        #     'Treatment',
-        #     f"{np.round(6000 * desc.at['d_kbh_i','mean'], 1)} +/- {np.round(6000 * desc.at['d_kbh_i','95%CI'], 1)}", 
-        #     f"{np.round(6000 * desc.at['d_kbh_f','mean'], 1)} +/- {np.round(6000 * desc.at['d_kbh_f','95%CI'], 1)}", 
-        #     f"{np.round(100 * desc.at['d_dkbh','mean'], 1)} +/- {np.round(100 * desc.at['d_dkbh','95%CI'], 1)}",  
-        #     np.round(ttest[ttest['parameter']=='d_dkbh']['p_val'].values[0], 4),
-        #     f"{np.round(100 * desc.at['d_dkbh','range'], 1)}",
-        # ],
     ]
 
     os.makedirs(tablespath, exist_ok=True)
@@ -101,57 +90,61 @@ def constants(statspath, tablespath):
 
     cols = ['biomarker', 'units', 'value (95%CI)']
 
-
     rows = [
-        [
-            'Glomerular Filtration Rate',
-            'mL/min',
-            f"{np.round(desc.at['GFR','mean'] * 60, 1)} +/- {np.round(desc.at['GFR','95%CI'] * 60, 1)}", 
-        ],
         [
             'Cardiac output',
             'L/min',
-            f"{np.round(desc.at['CO','mean'] * 60 / 1000, 1)} +/- {np.round(desc.at['CO','95%CI'] * 60 / 1000, 1)}", 
+            f"{desc.at['CO','mean'] * 60 / 1000:.2g} +/- {desc.at['CO','95%CI'] * 60 / 1000:.2g}", 
         ],
         [
             'Heart-lung mean transit time',
             'sec',
-            f"{np.round(desc.at['Thl','mean'], 0)} +/- {np.round(desc.at['Thl','95%CI'], 1)}", 
+            f"{desc.at['T_hl','mean']:.2g} +/- {desc.at['T_hl','95%CI']:.2g}", 
         ],
         [
             'Heart-lung dispersion',
             '%',
-            f"{np.round(100 * desc.at['Dhl','mean'], 0)} +/- {np.round(100 * desc.at['Dhl','95%CI'], 0)}", 
+            f"{100 * desc.at['D_hl','mean']:.2g} +/- {100 * desc.at['D_hl','95%CI']:.2g}", 
         ],
         [
             'Organs blood mean transit time',
             'sec',
-            f"{np.round(desc.at['To','mean'], 0)} +/- {np.round(desc.at['To','95%CI'], 0)}", 
+            f"{desc.at['T_b_or','mean']:.2g} +/- {desc.at['T_b_or','95%CI']:.2g}", 
         ],
         [
             'Organs extraction fraction',
             '%',
-            f"{np.round(100 * desc.at['Eo','mean'], 0)} +/- {np.round(100 * desc.at['Eo','95%CI'], 0)}", 
+            f"{100 * desc.at['E_or','mean']:.2g} +/- {100 * desc.at['E_or','95%CI']:.2g}", 
         ],
         [
             'Organs extravascular mean transit time',
             'min',
-            f"{np.round(desc.at['To_e','mean'] / 60, 1)} +/- {np.round(desc.at['To_e','95%CI'] / 60, 1)}", 
+            f"{desc.at['T_e_or','mean'] / 60:.2g} +/- {desc.at['T_e_or','95%CI'] / 60:.2g}", 
         ],
-        # [
-        #     'Gut mean transit time',
-        #     'sec',
-        #     f"{np.round(desc.at['Tg','mean'], 0)} +/- {np.round(desc.at['Tg','95%CI'], 1)}", 
-        # ],
+        [
+            'Organs venous return',
+            '%',
+            f"{100 * desc.at['vr_or','mean']:.2g} +/- {100 * desc.at['vr_or','95%CI']:.2g}", 
+        ],
+        [
+            'Liver artery and gut mean transit time',
+            'sec',
+            f"{desc.at['T_lag','mean']:.2g} +/- {desc.at['T_lag','95%CI']:.2g}", #f"{x:.2g}"
+        ],
+        [
+            'Liver fraction of cardiac output',
+            '%',
+            f"{100 * desc.at['fCO_li','mean']:.2g} +/- {100 * desc.at['fCO_li','95%CI']:.2g}", 
+        ],
         # [
         #     'Gut dispersion',
         #     '%',
-        #     f"{np.round(100 * desc.at['Dg','mean'], 0)} +/- {np.round(100 * desc.at['Dg','95%CI'], 0)}", 
+        #     f"{100 * desc.at['Dg','mean'], 0)} +/- {100 * desc.at['Dg','95%CI'], 0)}", 
         # ],
         [
             'Liver extracellular volume fraction',
             '%',
-            f"{np.round(100 * desc.at['ve','mean'], 0)} +/- {np.round(100 * desc.at['ve','95%CI'], 0)}", 
+            f"{100 * desc.at['v_e_li','mean']:.2g} +/- {100 * desc.at['v_e_li','95%CI']:.2g}", 
         ],
     ]
 

@@ -45,7 +45,7 @@ FREE = {
     'fCO_li': (0.01, 0.99),
     'CO': (30, 300),
     'T_hl': (0, 30),
-    'D_hl': (0.2, 0.8),
+    'D_hl': (0.01, 0.99),
     'T_b_or': (0, 60),
     'E_or': (0, 0.5),
     'vr_or': (0.5, 1.0),
@@ -58,7 +58,7 @@ FREE = {
 }
 
 
-def one_scan(subj, data, dir_results):
+def one_scan(subj, data, subjects, dir_results):
     config = CONFIG
     data |= INIT | { 
         'E_1_li': 0.1,
@@ -68,14 +68,14 @@ def one_scan(subj, data, dir_results):
         'E_1_li': (0, 1),
         'E_2_li': (0, 1),
     }
-    Model = dc.InverseAortaLiverDrug
-    study='one scan - two visits'
+    model = dc.InverseAortaLiverDrug(**config)
+    study = subjects[subj]
 
-    _fit_model(subj, data, dir_results, config, Model, study)
+    return _fit_model(subj, data, dir_results, model, study, scans=1)
 
 
 
-def two_scan(subj, data, dir_results):
+def two_scan(subj, data, subjects, dir_results, dir_results_one_scan=None):
     config = CONFIG | {
         'bolus': 'dual',               # Two independent injections performed
         'non_stationary': 'U',         # Uptake rate changes during the course of the experiment
@@ -94,30 +94,33 @@ def two_scan(subj, data, dir_results):
         'Ef_1_li': (0, 1),
         'Ef_2_li': (0, 1),
     }
-    study = 'two scans - two visits'
-    Model = dc.InverseAortaLiverSplitDrug
-
-    _fit_model(subj, data, dir_results, config, Model, study)
+    study = subjects[subj]
+    model = dc.InverseAortaLiverSplitDrug(**config)
 
 
+    # Optional: Initialize with one-scan model results
+    model_one_scan = dc.InverseAortaLiverDrug(**CONFIG)
+    pars_one_scan = os.path.join(dir_results_one_scan, 'Pars', subj + '.dmr')
+    results_one_scan, _, _ = model_one_scan.load(pars_one_scan)
+    data |= results_one_scan['popt'] # BAT is incorrect but can be ignored
+    data |= { 
+        'Ei_1_li': data['E_1_li'],
+        'Ei_2_li': data['E_2_li'],
+        'Ef_1_li': data['E_1_li'],
+        'Ef_2_li': data['E_2_li'],
+    }
 
-def _fit_model(subj, data, dir_results, config, Model, study):
+    # Fit
+    return _fit_model(subj, data, dir_results, model, study, scans=2)
+
+
+
+def _fit_model(subj, data, dir_results, model, study, scans=None):
 
     # Prepare output files
     pars_path = os.path.join(dir_results, 'Pars')
-    plot_path = os.path.join(dir_results, 'Plots')
-    pcov_path = os.path.join(dir_results, 'Cov')
-    pvar_path = os.path.join(dir_results, 'Sdev')
-    os.makedirs(pars_path, exist_ok=True)
-    os.makedirs(plot_path, exist_ok=True)
-    os.makedirs(pcov_path, exist_ok=True)
-    os.makedirs(pvar_path, exist_ok=True)
-
-    plot_file_all = os.path.join(plot_path, subj + '.png')
-    plot_file_init = os.path.join(plot_path, subj + '_first_pass.png')
-    plot_file_pcov = os.path.join(pcov_path, subj + '.png')
-    plot_file_pvar = os.path.join(pvar_path, subj + '.png')
     pars_file = os.path.join(pars_path, subj + '.dmr')
+    os.makedirs(pars_path, exist_ok=True)
 
     if os.path.exists(pars_file + '.zip'):
         return
@@ -125,17 +128,81 @@ def _fit_model(subj, data, dir_results, config, Model, study):
     logging.info(f"Training subject {subj}")
 
     try:
-        model = Model(**config)
-        result = model(data, verbose=2, xtol=1e-3)
+        result = model(data, verbose=2)
         logging.info(f"Success training subject {subj}")
     except:
         logging.exception(f"Failed training subject {subj}")
         return False
 
     model.save(result, pars_file, subj=subj, study=study)
+
+    _plot_model_fit(subj, data, dir_results, dir_results, model, scans=scans)
+
+    return True
+
+
+def plot_one_scan(subj, data, dir_results, dir_plots):
+    config = CONFIG
+    data |= INIT 
+    model = dc.InverseAortaLiverDrug(**config)
+
+    return _plot_model_fit(subj, data, dir_results, dir_plots, model, scans=1)
+
+
+def plot_two_scan(subj, data, dir_results, dir_plots):
+    config = CONFIG | {
+        'bolus': 'dual',               # Two independent injections performed
+        'non_stationary': 'U',         # Uptake rate changes during the course of the experiment
+    }
+    data |= INIT
+    model = dc.InverseAortaLiverSplitDrug(**config)
+
+    return _plot_model_fit(subj, data, dir_results, dir_plots, model,  scans=2)
+
+
+def _plot_model_fit(subj, data, dir_results, dir_plots, model, scans=None):
+
+    pars_path = os.path.join(dir_results, 'Pars')
+    pars_file = os.path.join(pars_path, subj + '.dmr')
+    if not os.path.exists(pars_file + '.zip'):
+        return
+
+    # Prepare output files
+    plot_path = os.path.join(dir_plots,  'Plots')
+    pcov_path = os.path.join(dir_plots, 'Cov')
+    pvar_path = os.path.join(dir_plots, 'Sdev')
+    os.makedirs(plot_path, exist_ok=True)
+    os.makedirs(pcov_path, exist_ok=True)
+    os.makedirs(pvar_path, exist_ok=True)
+
+    plot_file_all = os.path.join(plot_path, subj + '.png')
+    plot_file_init = os.path.join(plot_path, subj + '_first_pass.png')
+    plot_file_2nd = os.path.join(plot_path, subj + '_second_pass.png')
+    plot_file_pcov = os.path.join(pcov_path, subj + '.png')
+    plot_file_pvar = os.path.join(pvar_path, subj + '.png')
+
+    logging.info(f"Plotting subject {subj}")
+
+    try:
+        result, _, _ = model.load(pars_file)
+    except:
+        logging.exception(f"Failed plotting subject {subj}")
+        return False
+
     model.plot(data, result, fname=plot_file_all, show=False)
-    model.plot(data, result, fname=plot_file_init, show=False, xlim=[0, 5 * 60])
+    
+    if scans==2:
+        xlim = {1: [0, 5 * 60], 2: [0, 5 * 60]}
+        model.plot(data, result, fname=plot_file_init, show=False, xlim=xlim)
+
+        x1, x2 = data['tS_2_ao'][0], data['tS_4_ao'][0]
+        xlim = {1: [x1, x1 + 15 * 60], 2: [x2, x2 + 15 * 60]}
+        model.plot(data, result, fname=plot_file_2nd, show=False, xlim=xlim)
+    else:
+        model.plot(data, result, fname=plot_file_init, show=False, xlim=[0, 5 * 60])
+
     model.plot_pcov(result, plot_file_pcov, show=False)
     model.plot_pvar(result, plot_file_pvar, show=False, xlim=[-3, 3])
-    
+
+    logging.info(f"Success plotting subject {subj}")
     return True

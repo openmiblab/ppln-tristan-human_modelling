@@ -61,11 +61,11 @@ def effect_plot_combined(file, figpath, study):
         pars = pydmr.read(file, study=study)['pars']
         subjects = sorted(list({k[0] for k in pars}))
         all_data = [
-            [100 * pars[(s, study, 'r_khe')] for s in subjects],
-            [100 * pars[(s, study, 'r_kbh')] for s in subjects],
+            [100 * pars[(s, study, 'ke_e2h')] for s in subjects],
+            [100 * pars[(s, study, 'ke_h2b')] for s in subjects],
         ]
 
-        pars = ['khe', 'kbh']
+        pars = ['ke_e2h', 'ke_h2b']
 
         linewidth = 1.0
         fontsize=10
@@ -90,7 +90,8 @@ def effect_plot_combined(file, figpath, study):
             widths=0.3,
             vert=True,  # vertical box alignment
             patch_artist=True,  # fill with color
-            labels=pars)  # will be used to label x-ticks
+            tick_labels=pars # will be used to label x-ticks
+        )  
         ax0.set_xticklabels(labels=pars, fontsize=fontsize)
         #ax0.set_yticklabels(labels=ax0.get_yticklabels(), fontsize=fontsize)
         ax0.tick_params(axis='y', labelsize=fontsize)
@@ -104,7 +105,7 @@ def effect_plot_combined(file, figpath, study):
         ax0.set_ylabel('Relative effect size (%)', fontsize=fontsize)
 
     def _line_plots_combined(study):
-        ylim = [40,4]
+        ylim = [60,6]
         data = pydmr.read(file, study=study)
         pars = data['pars']
         sdev = data['sdev']
@@ -114,47 +115,42 @@ def effect_plot_combined(file, figpath, study):
         fontsize=10
         markersize=6
         ax1.set_title('Hepatocellular uptake rate', fontsize=fontsize, pad=10)
-        ax1.set_ylabel('khe (mL/min/100mL)', fontsize=fontsize)
+        ax1.set_ylabel('k_e2h (mL/min/100mL)', fontsize=fontsize)
         ax1.set_ylim(0, ylim[0])
         ax1.tick_params(axis='x', labelsize=fontsize)
         ax1.tick_params(axis='y', labelsize=fontsize)
         ax2.set_title('Biliary excretion rate', fontsize=fontsize, pad=10)
-        ax2.set_ylabel('kbh (mL/min/100mL)', fontsize=fontsize)
+        ax2.set_ylabel('k_h2b (mL/min/100mL)', fontsize=fontsize)
         ax2.set_ylim(0, ylim[1])
         ax2.tick_params(axis='x', labelsize=fontsize)
         ax2.tick_params(axis='y', labelsize=fontsize)
         
         for i, s in enumerate(subjects):
             x = ['control', 'treatment']
-            khe = [6000 * pars[(s, study, 'c_khe')], 6000 * pars[(s, study, 'd_khe')]]
-            kbh = [6000 * pars[(s, study, 'c_kbh')], 6000 * pars[(s, study, 'd_kbh')]]
-            khe_err = [6000 * sdev[(s, study, 'c_khe')], 6000 * sdev[(s, study, 'd_khe')]]
-            kbh_err = [6000 * sdev[(s, study, 'c_kbh')], 6000 * sdev[(s, study, 'd_kbh')]]
+            khe = [6000 * pars[(s, study, 'k_1_e2h')], 6000 * pars[(s, study, 'k_2_e2h')]]
+            kbh = [6000 * pars[(s, study, 'k_1_h2b')], 6000 * pars[(s, study, 'k_2_h2b')]]
+            #khe_err = [6000 * sdev[(s, study, 'k_1_e2h')], 6000 * sdev[(s, study, 'k_2_e2h')]]
+            #kbh_err = [6000 * sdev[(s, study, 'k_1_h2b')], 6000 * sdev[(s, study, 'k_2_h2b')]]
             si = i/len(subjects)  
 
             # ax1.plot(x, khe, '-', label=s, marker=mark[int(i+1)], markersize=markersize, color=color(si))
             # ax2.plot(x, kbh, '-', label=s, marker=mark[int(i+1)], markersize=markersize, color=color(si))
 
-            ax1.errorbar(
+            ax1.plot(
                 x, khe,
-                yerr=khe_err,          # Error values for khe
-                fmt='-',
+                linestyle='-',
                 marker=mark[int(i+1)],
                 markersize=markersize,
                 color=color(si),
                 label=s,
-                capsize=3              # Small horizontal caps
             )
-
-            ax2.errorbar(
+            ax2.plot(
                 x, kbh,
-                yerr=kbh_err,          # Error values for kbh
-                fmt='-',
+                linestyle='-',
                 marker=mark[int(i+1)],
                 markersize=markersize,
                 color=color(si),
                 label=s,
-                capsize=3
             )
 
 
@@ -171,7 +167,7 @@ def effect_plot_combined(file, figpath, study):
 
 
 
-def diurnal_k_combined(datafile, output_file, figpath, study, ylim=[40,40,4,4]):
+def diurnal_k_combined(datafile, output_file, figpath, study, ylim=[60,60,6,6]):
     fontsize=10
     titlesize=12
     markersize=6
@@ -185,32 +181,32 @@ def diurnal_k_combined(datafile, output_file, figpath, study, ylim=[40,40,4,4]):
         #hspace=1,
         )
     ax = {
-        'c_he': ax1,
-        'd_he': ax2,
-        'c_bh': ax3,
-        'd_bh': ax4,
+        '1_e2h': ax1,
+        '2_e2h': ax2,
+        '1_h2b': ax3,
+        '2_h2b': ax4,
     }
     ax1.set_title('Control', fontsize=titlesize)
     ax1.set_xlabel('Time of day (hrs)', fontsize=fontsize)
-    ax1.set_ylabel('khe (mL/min/100mL)', fontsize=fontsize)
+    ax1.set_ylabel('k_e2h (mL/min/100mL)', fontsize=fontsize)
     ax1.set_ylim(0, ylim[0])
     ax1.tick_params(axis='x', labelsize=fontsize)
     ax1.tick_params(axis='y', labelsize=fontsize)
     ax2.set_title('Treatment', fontsize=titlesize)
     ax2.set_xlabel('Time of day (hrs)', fontsize=fontsize)
-    ax2.set_ylabel('khe (mL/min/100mL)', fontsize=fontsize)
+    ax2.set_ylabel('k_e2h (mL/min/100mL)', fontsize=fontsize)
     ax2.set_ylim(0, ylim[1])
     ax2.tick_params(axis='x', labelsize=fontsize)
     ax2.tick_params(axis='y', labelsize=fontsize)
     #ax3.set_title('Baseline', fontsize=titlesize)
     ax3.set_xlabel('Time of day (hrs)', fontsize=fontsize)
-    ax3.set_ylabel('kbh (mL/min/100mL)', fontsize=fontsize)
+    ax3.set_ylabel('k_h2b (mL/min/100mL)', fontsize=fontsize)
     ax3.set_ylim(0, ylim[2])
     ax3.tick_params(axis='x', labelsize=fontsize)
     ax3.tick_params(axis='y', labelsize=fontsize)
     #ax4.set_title('Rifampicin', fontsize=titlesize)
     ax4.set_xlabel('Time of day (hrs)', fontsize=fontsize)
-    ax4.set_ylabel('kbh (mL/min/100mL)', fontsize=fontsize)
+    ax4.set_ylabel('k_h2b (mL/min/100mL)', fontsize=fontsize)
     ax4.set_ylim(0, ylim[3])
     ax4.tick_params(axis='x', labelsize=fontsize)
     ax4.tick_params(axis='y', labelsize=fontsize)
@@ -227,51 +223,51 @@ def diurnal_k_combined(datafile, output_file, figpath, study, ylim=[40,40,4,4]):
         time_2_drug = rois['drug']['time_2'] - rois['drug']['time_1'][0]
         tmax = [max(time_2_control), max(time_2_drug)]
 
-        for visit in ['c', 'd']:
+        for visit in ['1', '2']:
 
             # Acquistion times for the visit
             t0 = rois['control']['time_1'][0] if visit=='c' else rois['drug']['time_1'][0]
-            tm = tmax[0] if visit=='c' else tmax[1]
+            tm = tmax[0] if visit=='1' else tmax[1]
             t = np.arange(t0, t0 + tm, 1)
 
             # Skip if constant (one scan protocol)
-            if (s, study, f'{visit}_khe_i') not in pars:
+            if (s, study, f'ki_{visit}_e2h') not in pars:
                 return
             
             # khe
             # Interpolate parameters on acquisition time
-            khe_i = pars[(s, study, f'{visit}_khe_i')]
-            khe_f = pars[(s, study, f'{visit}_khe_f')]
-            khe = np.interp(t, [t[0], t[-1]], [khe_i, khe_f])              
+            ki_e2h = pars[(s, study, f'ki_{visit}_e2h')]
+            kf_e2h = pars[(s, study, f'kf_{visit}_e2h')]
+            khe = np.interp(t, [t[0], t[-1]], [ki_e2h, kf_e2h])              
 
             # Plot parameters
             si = i/len(subjects)
-            ax[f"{visit}_he"].plot(
+            ax[f"{visit}_e2h"].plot(
                 t / 3600, khe * 6000, '-', 
                 label=s, # marker=mark[int(i+1)], 
                 markersize=markersize, color=color(si),
             )
 
             # kbh
-            if visit=='c':
-                kbh = t * 0 + pars[(s, study, f'{visit}_kbh')]
-            elif visit=='d':
+            if visit=='1':
+                kbh = t * 0 + pars[(s, study, f'k_{visit}_h2b')]
+            elif visit=='2':
                 # vh = pars[(s, study, f'vh')]
                 # Th_i = vh / pars[(s, study, f'{visit}_kbh_i')]
                 # Th_f = vh / pars[(s, study, f'{visit}_kbh_f')]
                 # Th = np.interp(t, [t[0], t[-1]], [Th_i, Th_f])
                 # kbh = vh / Th 
-                kbh = t * 0 + pars[(s, study, f'{visit}_kbh')]
+                kbh = t * 0 + pars[(s, study, f'k_{visit}_h2b')]
             
             # Plot parameters
             si = i/len(subjects)
-            ax[f"{visit}_bh"].plot(
+            ax[f"{visit}_h2b"].plot(
                 t / 3600, kbh * 6000, '-', 
                 label=s, # marker=mark[int(i+1)], 
                 markersize=markersize, color=color(si),
             )
                 
-    ax['d_he'].legend()
+    ax['2_e2h'].legend()
 
     plot_file = os.path.join(figpath, '_diurnal_function.png')
     os.makedirs(figpath, exist_ok=True)

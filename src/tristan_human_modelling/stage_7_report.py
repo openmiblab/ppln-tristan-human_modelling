@@ -3,7 +3,7 @@ import logging
 
 from miblab.pipe import run_stage
 
-from utils import report
+from tristan_human_modelling.utils import report
 
 
 def run(build, logfile):

@@ -6,9 +6,9 @@ import numpy as np
 import pingouin as pg
 
 
-def describe(file, tablespath, study):
+def describe(file, tablespath, studies):
     dmr = pydmr.read(file, 'pandas') 
-    pars = dmr['pars'][dmr['pars']['study'] == study]
+    pars = dmr['pars'][dmr['pars']['study'].isin(studies)]
 
     summary = pars.groupby("parameter")["value"].describe().reset_index()
 
@@ -27,7 +27,7 @@ def describe(file, tablespath, study):
 def ttest(file, tablespath, study):
     # TODO: handle warnings - remove constants from list of variables
     dmr = pydmr.read(file, 'pandas') 
-    pars = dmr['pars'][dmr['pars']['study'] == study]
+    pars = dmr['pars'][dmr['pars']['study'] == f"tristan_humans_{study}"]
 
     # Run pairwise (paired) tests across biomarker levels
     # - dv: dependent variable column name
@@ -87,7 +87,7 @@ def ttest_translation(file, tablespath, drug):
 def ttest_diurnal(file, tablespath, study):
     # TODO: handle warnings - remove constants from list of variables
     dmr = pydmr.read(file, 'pandas') 
-    pars = dmr['pars'][dmr['pars']['study'] == study]
+    pars = dmr['pars'][dmr['pars']['study'] == f"tristan_humans_{study}"]
 
     # Test if mean parameter values are non-zero
     res = pars.groupby('parameter').apply(
