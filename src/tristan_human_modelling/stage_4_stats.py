@@ -32,35 +32,6 @@ def run(build, logfile):
         dir_results = os.path.join(dir_output, dir_scans, 'healthy')
         stats.describe(file_data, dir_results, [f"tristan_humans_{study}" for study in studies])
 
-    # run_volunteers(dir_output, dir_data)
-    # run_patients(dir_output, dir_data)
-
-
-# def run_volunteers(dir_output, dir_data):
-
-#     for scans in [[1], [1,2]]:
-#         dir_scans = f"scans_{len(scans)}"
-#         for drug in ['healthy_rifampicin', 'healthy_ciclosporin', 'healthy_metformin']:
-#             dir_results = os.path.join(dir_output, dir_scans, drug)
-#             file_data = os.path.join(dir_data, drug, dir_scans, 'all_results')
-
-#             stats.describe(file_data, dir_results)
-#             stats.ttest(file_data, dir_results)
-#             if scans==2:
-#                 stats.ttest_diurnal(file_data, dir_results)
-
-# def run_patients(dir_output, dir_data):
-
-#     for scans in [[1], [1,2]]:
-#         dir_scans = f"scans_{len(scans)}"
-#         dir_results = os.path.join(dir_output, dir_scans, 'patients_rifampicin')
-#         file_data = os.path.join(dir_data, 'patients_rifampicin', dir_scans, 'all_results')
-
-#         stats.describe(file_data, dir_results)
-#         stats.ttest(file_data, dir_results)
-#         if scans==2:
-#             stats.ttest_diurnal(file_data, dir_results)
-
 
 if __name__ == '__main__':
 

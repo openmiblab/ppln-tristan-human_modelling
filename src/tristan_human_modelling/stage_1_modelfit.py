@@ -12,11 +12,10 @@ import tristan_human_modelling.utils.models as models
 PIPELINE = 'human_modelling'
 
 
-#  TODO: try la and gut plucom for better first pass
 
 def run(build, logfile):
     run_one_scan(build, logfile)
-    # run_two_scans(build, logfile)
+    run_two_scans(build, logfile)
 
 
 def run_one_scan(build, logfile):
@@ -27,10 +26,13 @@ def run_one_scan(build, logfile):
 
     dir_results = os.path.join(dir_output, f"scans_{len(scans)}")
     data = dc.load_tristan_humans(scans=scans)
+
+    logging.info(f"--- started fitting {len(scans)} scans --- ")
+
     success = Parallel(n_jobs=-1)(delayed(train_subject_one_scan)(subj, data, subjects, dir_results, logfile) for subj in subjects.keys())
     # success = [train_subject_one_scan(subj, data, dir_results, logfile) for subj in data.keys()]
 
-    logging.info(f"--- {len(scans)} scans --- ")
+    logging.info(f"--- finished fitting {len(scans)} scans --- ")
     success = [s for s in success if s is not None]
     if success == []:
         logging.info(f"Found all results on disk. Nothing else to do here.")
@@ -47,10 +49,13 @@ def run_two_scans(build, logfile):
     dir_results = os.path.join(dir_output, f"scans_{len(scans)}")
     dir_results_one_scan = os.path.join(dir_output, f"scans_1")
     data = dc.load_tristan_humans(scans=scans)
-    success = Parallel(n_jobs=-1)(delayed(train_subject_two_scans)(subj, data, subjects, dir_results, logfile, dir_results_one_scan) for subj in subjects.keys())
-    # success = [train_subject_two_scans(subj, data, dir_results, logfile) for subj in data.keys()]
 
-    logging.info(f"--- {len(scans)} scans --- ")
+    logging.info(f"--- started fitting {len(scans)} scans --- ")
+
+    success = Parallel(n_jobs=-1)(delayed(train_subject_two_scans)(subj, data, subjects, dir_results, logfile, dir_results_one_scan) for subj in subjects.keys())
+    #success = [train_subject_two_scans(subj, data, subjects, dir_results, logfile, dir_results_one_scan) for subj in subjects.keys()]
+
+    logging.info(f"--- finished fitting {len(scans)} scans --- ")
     success = [s for s in success if s is not None]
     if success == []:
         logging.info(f"Found all results on disk. Nothing else to do here.")

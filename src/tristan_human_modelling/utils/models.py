@@ -30,7 +30,7 @@ INIT = {
     'D_hl': 0.05,
     'T_b_or': 5,
     'E_or': 0.25,
-    'vr_or': 0.9,
+    'E_ki': 0.1,
     'T_e_or': 120,
 
     'T_lag': 30,
@@ -49,13 +49,13 @@ FREE = {
     'BAT_2': (-30, 30),
 
     'fCO_li': (0.01, 0.99),
-    'CO': (30, 300),
+    'CO': (30, 200),
     'T_hl': (0, 30),
     'D_hl': (0.01, 0.99),
     'T_b_or': (2, 60),
-    'E_or': (0, 0.5),
-    'vr_or': (0.5, 1.0),
-    'T_e_or': (0, 800), 
+    'T_e_or': (0, 600), 
+    'E_or': (0.01, 0.5),
+    'E_ki': (0.01, 0.5),
 
     'T_lag': (0, 120),
     #'D_lag': (0, 1),
@@ -108,8 +108,7 @@ def two_scan(subj, data, subjects, dir_results, dir_results_one_scan=None):
     study = subjects[subj]
     model = dc.InverseAortaLiverSplitDrug(**config)
 
-
-    # Optional: Initialize with one-scan model results
+    # Initialize with one-scan model results
     model_one_scan = dc.InverseAortaLiverDrug(**CONFIG)
     pars_one_scan = os.path.join(dir_results_one_scan, 'Pars', subj + '.dmr')
     results_one_scan, _, _ = model_one_scan.load(pars_one_scan)
@@ -120,6 +119,14 @@ def two_scan(subj, data, subjects, dir_results, dir_results_one_scan=None):
         'Ef_1_li': data['E_1_li'],
         'Ef_2_li': data['E_2_li'],
     }
+
+    # Ad-hoc solution for one case LDS-003 without a second dose at control visit
+    # Since there is no second dose, the estimates of uptake and excretion cannot be 
+    # improved from the one-scan results so we fix them. Also there is no point 
+    # in fitting for BAT_2
+    if data['dose_2'] == 0:
+        fix = ['Ei_1_li', 'Ef_1_li', 'T_1_h', 'BAT_2']
+        data['pfree'] = {k: v for k, v in data['pfree'].items() if k not in fix}
 
     # Fit
     return _fit_model(subj, data, dir_results, model, study, scans=2)

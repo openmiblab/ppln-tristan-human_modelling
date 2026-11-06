@@ -68,7 +68,7 @@ def two_scans(
 
     doc.chapter('Kinetics and model fits')
 
-    folder = os.path.join(resultspath, 'stage_1_modelfit', 'scans_2', 'Plots')
+    folder = os.path.join(resultspath, 'stage_2_plotdata', 'scans_2', 'Plots')
     files = [f for f in os.listdir(folder)]
     for f in files:
         fig = os.path.join(folder, f)
@@ -128,7 +128,7 @@ def one_scan(
 
     doc.chapter('Kinetics and model fits')
 
-    folder = os.path.join(resultspath, 'stage_1_modelfit', 'scans_1', 'Plots')
+    folder = os.path.join(resultspath, 'stage_2_plotdata', 'scans_1', 'Plots')
     files = [f for f in os.listdir(folder)]
     for f in files:
         fig = os.path.join(folder, f)

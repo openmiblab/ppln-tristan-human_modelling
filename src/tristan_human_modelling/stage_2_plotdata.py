@@ -21,7 +21,6 @@ def run(build, logfile):
     dir_input = os.path.join(build, PIPELINE, 'stage_1_modelfit')
     dir_output = os.path.join(build, PIPELINE, 'stage_2_plotdata')
     for scans in [[1], [1,2]]:
-    #for scans in [ [1]]:
         dir_input_scans = os.path.join(dir_input, f"scans_{len(scans)}")
         dir_output_scans = os.path.join(dir_output, f"scans_{len(scans)}")
         data = dc.load_tristan_humans(scans=scans)

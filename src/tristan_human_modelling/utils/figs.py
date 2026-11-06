@@ -127,7 +127,11 @@ def effect_plot_combined(file, figpath, study):
         
         for i, s in enumerate(subjects):
             x = ['control', 'treatment']
-            khe = [6000 * pars[(s, study, 'k_1_e2h')], 6000 * pars[(s, study, 'k_2_e2h')]]
+            if (s, study, 'ki_2_e2h') in pars: 
+                # Effect size is based on the initial value as drugs are administered to inhibit maximally at the start
+                khe = [6000 * pars[(s, study, 'k_1_e2h')], 6000 * pars[(s, study, 'ki_2_e2h')]]
+            else:
+                khe = [6000 * pars[(s, study, 'k_1_e2h')], 6000 * pars[(s, study, 'k_2_e2h')]]
             kbh = [6000 * pars[(s, study, 'k_1_h2b')], 6000 * pars[(s, study, 'k_2_h2b')]]
             #khe_err = [6000 * sdev[(s, study, 'k_1_e2h')], 6000 * sdev[(s, study, 'k_2_e2h')]]
             #kbh_err = [6000 * sdev[(s, study, 'k_1_h2b')], 6000 * sdev[(s, study, 'k_2_h2b')]]
